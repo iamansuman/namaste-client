@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Chat with your friends">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="css/style.css">
+	<title>Namaste</title>
+</head>
+
+<body>
+	<div id="myModal" class="modal">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<p id="joinlink">Link</p>
+			<button onclick="copyToClipboard()">Copy</button>
+			<button onclick="shareOnWhatsApp()">Share on WhatsApp</button>
+		</div>
+	</div>
+	<img src="./share.png" id="share" alt="Share">
+	<div id="left-pane">
+		<h3>Active Users</h3>
+		<ul id="activeUsers">
+			<li data-id="0">Ansuman</li>
+		</ul>
+	</div>
+	<div id="right-pane">
+		<div id="msg-contain"></div>
+		<div id="send-contain">
+			<input type="text" id="message-input">
+			<img src="./send.png" id="send-button" alt="Send">
+		</div>
+	</div>
+	<script defer src="/socket.io/socket.io.js"></script>
+	<script defer src="js/sec.js"></script>
+	<script defer src="js/script.js"></script>
+	<script defer src="js/modal.js"></script>
+</body>
+
+</html>
