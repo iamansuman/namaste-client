@@ -3,7 +3,7 @@ var modal = document.getElementById("myModal");
 var btn = document.getElementById("share");
 var span = document.getElementsByClassName("close")[0];
 
-let inviteLink = "https://saynamaste.herokuapp.com/?pwd=" + key;
+let inviteLink = location.href + "?pwd=" + key;
 linkEle.innerHTML = inviteLink;
 
 btn.onclick = function() {
