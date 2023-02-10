@@ -1,7 +1,4 @@
 .vscode
 package-lock.json
 node_modules
-pushjs
-Messenger.png
-index-ref.html
-style-ref.css
+.old
