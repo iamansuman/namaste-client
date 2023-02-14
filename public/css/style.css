@@ -1,12 +1,80 @@
+@font-face {
+    font-family: "AwalRamadhan";
+    src: url('./AwalRamadhan.ttf')
+}
+
 *{
     padding: 0;
     margin: 0;
     color: #000;
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    overflow: hidden;
     --theme-color: #d544fc;
     --theme-color-light: #e587ff;
     --theme-color-dark: #6c1d82;
     --background-image: url('./../imgs/bg-raimond-klavins-Ql6JhGdbQg0-unsplash.jpg');
+}
+
+#menu{
+    padding: 1em;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    left: -100vw;
+    bottom: 0;
+    top: 0;
+    width: 90vw;
+    z-index: 1;
+    background-color: #352e2e;
+    transition: 750ms cubic-bezier(0.39, 0.58, 0.57, 1);
+}
+.menu-open{ left: 0 !important }
+
+#menu .toprow{
+    display: flex;
+    flex-direction: row;
+}
+
+#menu img{
+    height: 4.5vh;
+    cursor: pointer;
+}
+
+#menu h1{
+    flex: 1;
+    text-align: center;
+    color: #fff;
+}
+
+#menu ul{
+    flex: 1;
+    list-style: none;
+    overflow-y: scroll;
+}
+#menu ul::-webkit-scrollbar { width: 15px }
+#menu ul::-webkit-scrollbar-track { background-color: #00000000 }
+#menu ul::-webkit-scrollbar-thumb {
+    background: var(--theme-color);
+    cursor: pointer;
+}
+#menu ul::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-color-dark);
+    cursor: pointer;
+}
+
+#menu ul li{
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    border-bottom: 1px solid var(--theme-color);
+}
+
+#menu ul li span{
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: larger;
+    color: #dfdfdf;
 }
 
 .mainview{
@@ -32,6 +100,10 @@
     background-color: #fff;
 }
 
+.header h1{
+    font-family: 'AwalRamadhan';
+}
+
 .header img{
     margin: 0 1.5em 0 1.5em;
     height: 5vh;
@@ -47,18 +119,14 @@
     background-color: #ffffffad;
     overflow-y: scroll;
 }
-
 #msg-container::-webkit-scrollbar { width: 15px }
-
 #msg-container::-webkit-scrollbar-track { background-color: #fff }
-
 #msg-container::-webkit-scrollbar-thumb {
     background: var(--theme-color);
     cursor: pointer;
 }
-
 #msg-container::-webkit-scrollbar-thumb:hover {
-    background: var(--theme-color-dark); 
+    background: var(--theme-color-dark);
     cursor: pointer;
 }
 
@@ -97,6 +165,11 @@
     margin-right: 1rem;
     height: 7.5vh;
     cursor: pointer;
+}
+
+#send-btn:disabled{
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .messageElement{

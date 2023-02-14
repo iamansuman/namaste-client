@@ -8,24 +8,39 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div id="menu">
+        <div class="toprow">
+            <img src="./imgs/close.svg" alt="Close Menu" title="Close menu" onclick="closeMenu()">
+            <h1>Active Users</h1>
+        </div>
+        <ul style="flex: none">
+            <li style="border-bottom: 2px solid #fff;">
+                <h2 style="color: #fff;">UserName</h2>
+                <h2 style="color: #fff;">Connection ID</h2>
+                <h2 style="color: #fff;">Connected Since</h2>
+            </li>
+        </ul>
+        <ul id="activeUsers"></ul>
+    </div>
     <div class="mainview">
         <div class="header">
-            <img src="./imgs/hamburger.svg" alt="More">
-            <img src="./imgs/share.svg" alt="Share">
+            <img src="./imgs/hamburger.svg" alt="Menu" title="Menu" onclick="openMenu()">
+            <h1 style="user-select: none;">Namaste</h1>
+            <img src="./imgs/share.svg" alt="Share" title="Share link to this room" onclick="copyToClipboard()">
         </div>
         <div id="msg-container"></div>
         <form id="send-container" onsubmit="sendMessage(event)">
             <input name="txtMsgBox" tabindex="0" required autocomplete="off" id="txt-msg-box" />
-            <input type="image" src="./imgs/send.svg" alt="Send" id="send-btn"/>
+            <input type="image" src="./imgs/send.svg" alt="Send" id="send-btn" title="Send" disabled />
         </form>
     </div>
     <div class="modal"></div>
 
     <script defer src="https://unpkg.com/lzutf8@latest/build/production/lzutf8.min.js"></script>
+	<script defer src="https://unpkg.com/socket.io@4.6.0/client-dist/socket.io.min.js"></script>
 	<script defer src="/socket.io/socket.io.js"></script>
 	<script defer src="js/Encryption/sec-v1.1.js"></script>
 	<script defer src="js/DOM.js"></script>
 	<script defer src="js/script.js"></script>
-	<script defer src="js/modal.js"></script>
 </body>
 </html>

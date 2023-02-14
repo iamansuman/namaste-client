@@ -34,7 +34,7 @@ function decrypt(ciTxt, keyin=00000000) {
 	var result = "";
 	let parsedCiTxt = String(LZUTF8.decompress(ciTxt, { inputEncoding: "StorageBinaryString" }));
 	let ciTxtChunks = parsedCiTxt.match(/.{1,18}/g);
-	
+
 	for (i=0; i<ciTxtChunks.length; i++){
 		let rawCharData = parseInt(ciTxtChunks[i]);
 		let processedChar = String(Math.sqrt(rawCharData - key))
