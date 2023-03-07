@@ -1,6 +1,6 @@
 @font-face {
-    font-family: "AwalRamadhan";
-    src: url('./AwalRamadhan.ttf')
+    font-family: "AnandaNamasteRegular";
+    src: url('./AnandaNamasteRegular.ttf');
 }
 
 *{
@@ -9,6 +9,7 @@
     color: #000;
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     overflow: hidden;
+    user-select: none;
     --theme-color: #d544fc;
     --theme-color-light: #e587ff;
     --theme-color-dark: #6c1d82;
@@ -39,6 +40,7 @@
 #menu img{
     height: 4.5vh;
     cursor: pointer;
+    aspect-ratio: 1/1;
 }
 
 #menu h1{
@@ -94,6 +96,7 @@
     width: calc(100% - 20px);
     border-radius: 2em 2em 0 0;
     min-height: 7.5vh;
+    max-height: 10vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -101,13 +104,14 @@
 }
 
 .header h1{
-    font-family: 'AwalRamadhan';
+    font-family: 'AnandaNamasteRegular';
 }
 
 .header img{
-    margin: 0 1.5em 0 1.5em;
-    height: 5vh;
+    margin: 0 1.5rem 0 1.5rem;
+    max-height: 5vh;
     cursor: pointer;
+    aspect-ratio: 1/1;
 }
 
 #msg-container{
@@ -142,8 +146,7 @@
 }
 
 #txt-msg-box{
-    margin-left: 1em;
-    margin-right: 0.5em;
+    margin: 1rem;
     font-size: xx-large;
     min-width: 200px;
     flex: 1;
@@ -160,11 +163,11 @@
     transition: 2s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
-#send-btn{
-    margin-left: 0.5em;
-    margin-right: 1rem;
+#send-container > input[type="image"], #send-container img{
+    margin: 1rem;
     height: 7.5vh;
-    cursor: pointer;
+    cursor: pointer;    
+    aspect-ratio: 1/1;
 }
 
 #send-btn:disabled{
@@ -172,11 +175,52 @@
     cursor: not-allowed;
 }
 
-.messageElement{
+.messageElement, .callRequestElement{
+    display: flex;
     margin-bottom: 10px;
     padding: 10px 15px;
-    border-radius: 1.5em;
     font-size: x-large;
     background-color: var(--theme-color-light);
+    min-height: 2rem;
+    max-width: 69%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    user-select: text;
+    flex-direction: column;
+}
+
+.messageElement::-webkit-scrollbar { height: 3.5px }
+.messageElement::-webkit-scrollbar-track { background: #00000000 }
+.messageElement::-webkit-scrollbar-thumb { background: var(--theme-color); border-radius: 1rem; }
+.messageElement::-webkit-scrollbar-thumb:hover { background: var(--theme-color-dark) }
+
+.callRequestElement div{
     display: flex;
+    align-items: center;
+}
+.callRequestElement div img{
+    height: 2.5rem;
+    aspect-ratio: 1/1;
+}
+.callRequestElement div button{
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 1.25rem;
+    cursor: pointer;
+    font-size: large;
+    outline: none;
+    border: 2.5px solid var(--theme-color-dark);
+    transition: 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+.callRequestElement div button:hover{
+    color: #ffffff;
+    background-color: var(--theme-color-dark);
+    transition: 1s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+.callRequestElement div button:disabled{
+    cursor: not-allowed;
+    background-color: #575757;
+    opacity: 0.75;
+    color: #ffffff;
 }

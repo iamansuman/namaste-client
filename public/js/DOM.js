@@ -1,26 +1,19 @@
-const messageContainer = document.getElementById("msg-container");
-const Menu = document.getElementById("menu");
-const sendButton = document.getElementById("send-btn");
-const activeUserList = document.getElementById("activeUsers");
-
-function appendMessage(message, alignment=0) {
-    //0-> System Notifications; 1-> Sender; 2-> User
-    const alignmentOptions = ['center', 'flex-start', 'flex-end'];
-    const borderRadiusOptions = ['1.5em', '0 1.5em 1.5em 0', '1.5em 0 0 1.5em'];
-	const messageElement = document.createElement('div');
-    messageElement.classList.add('messageElement');
-	messageElement.style.alignSelf = alignmentOptions[alignment];
-	messageElement.style.borderRadius = borderRadiusOptions[alignment];
-	messageElement.innerText = message;
-	messageContainer.append(messageElement);
-}
+const DOMElements = {
+	messageContainer: document.getElementById("msg-container"),
+	Menu: document.getElementById("menu"),
+	sendButton: document.getElementById("send-btn"),
+	activeUserList: document.getElementById("activeUsers"),
+	videoCallModal: document.getElementById("videoCallModal"),
+	myVideo: document.getElementById("myVideo"),
+	remoteVideo: document.getElementById("remoteVideo"),
+};
 
 function openMenu(){
-	Menu.classList.add('menu-open');
+	DOMElements.Menu.classList.add('menu-open');
 }
 
 function closeMenu(){
-	Menu.classList.remove('menu-open');
+	DOMElements.Menu.classList.remove('menu-open');
 }
 
 function copyToClipboard() {
@@ -30,7 +23,7 @@ function copyToClipboard() {
 }
 
 function listUsers(users=[]){
-	activeUserList.innerHTML = null;
+	DOMElements.activeUserList.innerHTML = null;
 	users.forEach(user => {
 		if (user){
 			let CT = new Date(user.connectionTime);
@@ -42,7 +35,53 @@ function listUsers(users=[]){
 			let spCT = document.createElement('span');
 			spCT.innerText = `${String(CT.getHours()).padStart(2, '0')}:${String(CT.getMinutes()).padStart(2, '0')}:${String(CT.getSeconds()).padStart(2, '0')} - ${CT.getDate()}/${CT.getMonth()+1}/${CT.getFullYear()}`;
 			li.append(spName, spID, spCT);
-			activeUserList.append(li);
+			DOMElements.activeUserList.append(li);
+			li.scrollIntoView({ behavior: 'smooth' });
 		}
 	});
+}
+
+function appendMessage(message=null, alignment=0, timeStamp=null){
+	if (message==null) return;
+    //0-> System Notifications; 1-> Sender; 2-> Sender
+    const alignmentOptions = ['center', 'flex-start', 'flex-end'];
+    const borderRadiusOptions = ['1rem', '0 1rem 1rem 0', '1rem 0 0 1rem'];
+	const messageElement = document.createElement('div');
+    messageElement.classList.add('messageElement');
+	messageElement.style.alignSelf = alignmentOptions[alignment];
+	messageElement.style.borderRadius = borderRadiusOptions[alignment];
+	messageElement.innerText = message;
+	DOMElements.messageContainer.append(messageElement);
+	messageElement.scrollIntoView({ behavior: 'smooth' });
+	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
+}
+
+function appendCall(type='audio', bySender=false, peerID=null, socketID=null, senderName=null, timeStamp=null){
+	if (peerID == null || socketID == null) return;
+	const requestCallElement = document.createElement('div');
+	requestCallElement.classList.add('callRequestElement');
+	if (bySender){
+		const namePlaceHolder = document.createElement('span');
+		namePlaceHolder.innerText = senderName;
+		requestCallElement.append(namePlaceHolder);
+		requestCallElement.style.minHeight = `${5+2}rem`;
+	} else requestCallElement.style.minHeight = `${5}rem`;
+	requestCallElement.style.alignSelf = (bySender) ? 'flex-start' : 'flex-end';
+	requestCallElement.style.borderRadius = (bySender) ? '0 0.75rem 0.75rem 0' : '0.75rem 0 0 0.75rem';
+	const div = document.createElement('div');
+	const callImage = document.createElement('img');
+	callImage.src = (type=='video') ? "./imgs/video-call.svg" : "./imgs/call.svg";
+	div.append(callImage);
+	const callBtn = document.createElement('button');
+	callBtn.innerText = `Ring ${senderName}`;
+	callBtn.disabled = !Boolean(bySender);
+	callBtn.addEventListener('click', (e) => {
+		e.preventDefault();
+		joinCall(type, peerID, socketID);
+	});
+	div.append(callBtn);
+	requestCallElement.append(div);
+	DOMElements.messageContainer.append(requestCallElement);
+	requestCallElement.scrollIntoView({ behavior: 'smooth' });
+	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
 }
