@@ -10,8 +10,6 @@ else user.userName = prompt('What is your name?', "User") || "User";
 if (urlPwd != null || urlPwd != undefined) user.key = urlPwd
 else user.key = parseInt(prompt('Please enter a passcode\n(In numbers only)\nMinimum 8 digits preferred', '00000000')) || 00000000;
 
-// window.history.replaceState(null, null, "/");
-
 const socket = io('/');
 const peer = new Peer();
 
@@ -51,17 +49,21 @@ socket.on('connect', () => {
 		listUsers(allUsers);
 	});
     appendMessage("You joined! ⚡");
-})
+});
 
 socket.on('user-connected', (name) => {
-    appendMessage(`${name} connected`);
-})
+    appendMessage(`${name} connected 🤝🏽`);
+});
+
+socket.on('user-disconnected', (userName) => {
+    appendMessage(`${userName} disconnected 👋🏽`);
+});
 
 socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => {
 	const msgBody = decrypt(messageBody, user.key);
 	if (msgBody != "" || msgBody != null || msgBody != undefined) appendMessage(`${senderName}: ${msgBody}`, 1)
     else appendMessage(`${data.name} is trying to send a message but his/her passcode isn't the same as yours`);
-})
+});
 
 socket.on('usersList', (users) => {
 	allUsers = users;
@@ -71,7 +73,6 @@ socket.on('usersList', (users) => {
 socket.on('call-request', ({ senderName, senderID, peerID, callType, timeStamp }) => {
     const remotePeerID = decrypt(peerID, user.key);
     appendCall(callType, true, remotePeerID, senderID, senderName, timeStamp);
-    //appendCall on left of chat
 });
 
 socket.on('end-call', () => { endCall(true) });
@@ -80,7 +81,7 @@ socket.on('disconnect', () => {
 	DOMElements.sendButton.disabled = true;
     listUsers();
 	appendMessage("You got disconnected from server 😢");
-	appendMessage("Reload this page to reconnect 🔌");
+	appendMessage("Attempting to reconnect... 🔌");
 });
 
 function sendMessage(e){
