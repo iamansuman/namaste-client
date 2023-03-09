@@ -17,7 +17,9 @@
                 <video id="remoteVideo" autoplay poster="./imgs/no-connection.jpeg"></video>
             </div>
             <div class="callControls">
+                <canvas id="myWaveform"></canvas>
                 <img src="./imgs/call-end.svg" alt="End Call" onclick="endCall()">
+                <canvas id="remoteWaveform" style="transform: rotate(180deg);"></canvas>
             </div>
         </div>
     </div>
@@ -56,7 +58,8 @@
     <script defer src="https://unpkg.com/peerjs@latest/dist/peerjs.min.js"></script>
 	<script defer src="https://unpkg.com/socket.io@latest/client-dist/socket.io.min.js"></script>
 	<script defer src="js/Encryption/sec-v1.1.js"></script>
-	<script defer src="js/script.js"></script>
+	<script defer src="js/Waveform.js"></script>
 	<script defer src="js/DOM.js"></script>
+	<script defer src="js/script.js"></script>
 </body>
 </html>

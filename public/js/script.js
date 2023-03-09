@@ -6,9 +6,9 @@ const urlName = usp.get("name");
 const urlPwd = usp.get("pwd");
 
 if (urlName != null || urlName != undefined) user.userName = urlName
-else user.userName = prompt('What is your name?');
+else user.userName = prompt('What is your name?', "User") || "User";
 if (urlPwd != null || urlPwd != undefined) user.key = urlPwd
-else user.key = parseInt(prompt('Please enter a passcode\n(In numbers only)\nMinimum 8 digits preferred'));
+else user.key = parseInt(prompt('Please enter a passcode\n(In numbers only)\nMinimum 8 digits preferred', '00000000')) || 00000000;
 
 // window.history.replaceState(null, null, "/");
 
@@ -30,10 +30,12 @@ peer.on('call', (ring) => {
     navigator.mediaDevices.getUserMedia({ video: Boolean(callType == 'video'), audio:true })
     .then((stream) => {
         DOMElements.myVideo.srcObject = stream;
+        WaveformLocal.draw(stream, DOMElements.myWaveform);
         DOMElements.videoCallModal.classList.remove('hideModal');
         ring.answer(stream);
         ring.on('stream', (remoteStream) => {
             DOMElements.remoteVideo.srcObject = remoteStream;
+            WaveformRemote.draw(remoteStream, DOMElements.remoteWaveform);
         });
         ring.on('close', () => { endCall() });
     })
@@ -107,10 +109,12 @@ function joinCall(type='audio', peerID=null, socketID=null){    //  <- check thi
 	navigator.mediaDevices.getUserMedia({ video: Boolean(type=='video'), audio:true })
     .then((stream) => {
         DOMElements.myVideo.srcObject = stream;
+        WaveformLocal.draw(stream, DOMElements.myWaveform);
         DOMElements.videoCallModal.classList.remove('hideModal');
         let call = user.currentCall = peer.call(peerID, stream, {metadata: { callType: type, peerSocketID: socket.id }});
         call.on('stream', (remoteStream) => {
             DOMElements.remoteVideo.srcObject = remoteStream;
+            WaveformRemote.draw(remoteStream, DOMElements.remoteWaveform);
         });
         call.on('close', () => { endCall() });
     })
@@ -131,6 +135,8 @@ function endCall(fromServer=false, sendRequestToSocketID=user.currentCallRemoteS
     });
     DOMElements.remoteVideo.src = '';
     DOMElements.remoteVideo.load();
+    WaveformLocal.stop();
+    WaveformRemote.stop();
     user.currentCall = null;
     user.currentCallRemoteSocketID = null;
     DOMElements.videoCallModal.classList.add('hideModal');

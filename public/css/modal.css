@@ -45,10 +45,10 @@
 .modalContentsContainer .callControls{
     display: flex;
     flex-direction: row;    
-    justify-content: center;
+    justify-content: space-evenly;
     height: 15vh;
 }
-.modalContentsContainer .callControls *{
+.modalContentsContainer .callControls img{
     cursor: pointer;
     aspect-ratio: 1/1;
 }

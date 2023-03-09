@@ -5,7 +5,9 @@ const DOMElements = {
 	activeUserList: document.getElementById("activeUsers"),
 	videoCallModal: document.getElementById("videoCallModal"),
 	myVideo: document.getElementById("myVideo"),
+	myWaveform: document.getElementById("myWaveform"),
 	remoteVideo: document.getElementById("remoteVideo"),
+	remoteWaveform: document.getElementById("remoteWaveform"),
 };
 
 function openMenu(){
