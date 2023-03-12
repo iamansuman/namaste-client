@@ -15,8 +15,11 @@ function unicodeToChar(text) {
 	});
 }
 
-function encrypt(plTxt, keyin=00000000) {
-	const key = parseInt(keyin);
+function encrypt(plTxt, keyin="00000000") {
+	const keyStr = String(keyin);
+	let key = 0;
+	for (i=0; i<keyStr.length; i++) key += keyStr.charCodeAt(i);
+
 	var parsedPlTxt = charToUnicode(plTxt);
 	var result = "";
 
@@ -29,10 +32,13 @@ function encrypt(plTxt, keyin=00000000) {
 	return LZUTF8.compress(result, { outputEncoding: "StorageBinaryString" });
 }
 
-function decrypt(ciTxt, keyin=00000000) {
-	const key = parseInt(keyin);
-	var result = "";
+function decrypt(ciTxt, keyin="00000000") {
+	const keyStr = String(keyin);
+	let key = 0;
+	for (i=0; i<keyStr.length; i++) key += keyStr.charCodeAt(i);
+
 	let parsedCiTxt = String(LZUTF8.decompress(ciTxt, { inputEncoding: "StorageBinaryString" }));
+	var result = "";
 	let ciTxtChunks = parsedCiTxt.match(/.{1,18}/g);
 
 	for (i=0; i<ciTxtChunks.length; i++){
