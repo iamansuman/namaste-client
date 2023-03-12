@@ -1,4 +1,8 @@
 const DOMElements = {
+	loginModal: document.getElementById("loginModal"),
+	loginUsername: document.getElementById("login_username"),
+	loginPasscode: document.getElementById("login_passcode"),//look for loginPasscode.loginPasscode.validity.valid
+	loginButton: document.getElementById("login_btn"),
 	messageContainer: document.getElementById("msg-container"),
 	Menu: document.getElementById("menu"),
 	sendButton: document.getElementById("send-btn"),
@@ -9,6 +13,8 @@ const DOMElements = {
 	remoteVideo: document.getElementById("remoteVideo"),
 	remoteWaveform: document.getElementById("remoteWaveform"),
 };
+
+document.addEventListener('contextmenu', (e) => e.preventDefault());
 
 function openMenu(){
 	DOMElements.Menu.classList.add('menu-open');
@@ -39,6 +45,7 @@ function listUsers(users=[]){
 			li.append(spName, spID, spCT);
 			DOMElements.activeUserList.append(li);
 			li.scrollIntoView({ behavior: 'smooth' });
+			if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
 		}
 	});
 }
@@ -86,4 +93,25 @@ function appendCall(type='audio', bySender=false, peerID=null, socketID=null, se
 	DOMElements.messageContainer.append(requestCallElement);
 	requestCallElement.scrollIntoView({ behavior: 'smooth' });
 	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
+}
+
+DOMElements.loginUsername.addEventListener('input', (e) => { DOMElements.loginButton.disabled = (DOMElements.loginPasscode.validity.valid === false) || (DOMElements.loginUsername.value === '') });
+DOMElements.loginPasscode.addEventListener('input', (e) => { DOMElements.loginButton.disabled = (DOMElements.loginPasscode.validity.valid === false) || (DOMElements.loginUsername.value === '') });
+
+function passCreds(e){
+	e.preventDefault();
+	DOMElements.loginButton.disabled = true;
+	const userName = String(DOMElements.loginUsername.value);
+	const userPass = String(DOMElements.loginPasscode.value);
+	if (userName && userPass.length >= 8){
+		user.userName = userName;
+		user.key = userPass;
+		DOMElements.loginModal.classList.add('hideModal');
+    	socket.connect();
+	} else {
+		alert("Invalid Username or Passcode");
+		DOMElements.loginUsername.value = '';
+		DOMElements.loginPasscode.value = '';
+		DOMElements.loginButton.disabled = false;
+	}
 }

@@ -4,13 +4,25 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
     <title>Namaste</title>
     <meta name="description" content="Chat with your friends, securely 🔒">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/modal.css">
 </head>
 <body>
+    <div id="loginModal" class="modalBackGround">
+        <div class="modalContentsContainer">
+            <form onsubmit="passCreds(event)">
+                <input type="text" id="login_username" title="Username" required placeholder="Username"/>
+                <input type="text" id="login_passcode" title="PassCode" required placeholder="Passcode (min. 8 digits)" pattern="[0-9]+" minlength="8"/>
+                <input type="submit" disabled id="login_btn" disabled value="Enter">
+            </form>
+        </div>
+    </div>
+
     <div id="videoCallModal" class="modalBackGround hideModal">
+        <!-- <img class="closeModalBtn" src="./imgs/close.svg" alt="Close" title="Close" onclick="this.parentElement.classList.add('hideModal')"> -->
         <div class="modalContentsContainer">
             <div class="videoContainer">
                 <video id="myVideo" muted autoplay poster="./imgs/no-connection.jpeg"></video>

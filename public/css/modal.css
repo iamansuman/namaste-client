@@ -1,10 +1,21 @@
 .modalBackGround{
     background-color: rgba(0, 0, 0, 0.4);
+    -webkit-backdrop-filter: blur(15px);
     backdrop-filter: blur(15px);
     position: fixed;
     height: 100vh;
     width: 100vw;
     z-index: 1;
+}
+
+.closeModalBtn{
+    margin: 1em;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 2.5em;
+    width: 2.5em;
+    cursor: pointer;
 }
 
 .hideModal{
@@ -19,7 +30,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: black;
+    color: #ffffff;
+    background-color: #000000;
     border-radius: 1em;
     display: flex;
     flex-direction: column;
@@ -28,6 +40,45 @@
     z-index: 2;
 }
 
+/* For Login Modal */
+.modalContentsContainer form{
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    align-self: center;
+    width: 75%;
+}
+
+.modalContentsContainer form input{
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    outline: none;
+    border: none;
+    width: 70%;
+}
+
+.modalContentsContainer form input[type='submit']{
+    width: 50%;
+    cursor: pointer;
+    transition: 500ms ease;
+}
+
+.modalContentsContainer form input[type='submit']:hover{
+    width: 60%;
+    transition: 500ms ease;
+}
+
+.modalContentsContainer form input[type='submit']:focus{ transform: scale(0.95) }
+
+.modalContentsContainer form input[type='submit']:disabled{
+    opacity: 0.9;
+    cursor: not-allowed;
+}
+
+/* For Video and audio calls Modal */
 .modalContentsContainer video{
     aspect-ratio: 1/1;
     width: 50%;

@@ -1,23 +1,24 @@
-let allUsers = [];
+const socket = io({ autoConnect: false });
+const peer = new Peer();
 const user = { userName: null, key: null, peerID: null, currentCall: null, currentCallRemoteSocketID: null };
+let allUsers = [];
 
 const usp = new URLSearchParams(document.location.href.split('?')[1]);
 const urlName = usp.get("name");
 const urlPwd = usp.get("pwd");
+if (urlName) user.userName = String(urlName);
+if (urlPwd) user.key = String(urlPwd).length >=8 ? String(urlPwd) : null;
 
-if (urlName != null || urlName != undefined) user.userName = urlName
-else user.userName = prompt('What is your name?', "User") || "User";
-if (urlPwd != null || urlPwd != undefined) user.key = urlPwd
-else user.key = parseInt(prompt('Please enter a passcode\n(In numbers only)\nMinimum 8 digits preferred', '00000000')) || 00000000;
-
-const socket = io('/');
-const peer = new Peer();
+if (user.userName && user.key) {
+    DOMElements.loginModal.classList.add('hideModal');
+    socket.connect();
+} else {
+    DOMElements.loginUsername.value = urlName;
+    DOMElements.loginPasscode.value = urlPwd;
+    DOMElements.loginModal.classList.remove('hideModal')
+};
 
 peer.on('open', (id) => { user.peerID = id });
-
-peer.on('connection', (conn) => {
-    console.log("connection made!", conn);
-});
 
 peer.on('call', (ring) => {
     user.currentCall = ring;
