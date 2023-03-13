@@ -1,7 +1,7 @@
 const socket = io({ autoConnect: false });
 const peer = new Peer();
 const user = { userName: null, key: null, peerID: null, currentCall: null, currentCallRemoteSocketID: null };
-let allUsers = [];
+let allUsers = [];  //<- Not necessary, good to keep
 
 const usp = new URLSearchParams(document.location.href.split('?')[1]);
 const urlName = usp.get("name");
@@ -9,14 +9,10 @@ const urlPwd = usp.get("pwd");
 if (urlName) user.userName = String(urlName);
 if (urlPwd) user.key = String(urlPwd).length >=8 ? String(urlPwd) : null;
 
-if (user.userName && user.key) {
-    DOMElements.loginModal.classList.add('hideModal');
-    socket.connect();
-} else {
-    DOMElements.loginUsername.value = urlName;
-    DOMElements.loginPasscode.value = urlPwd;
-    DOMElements.loginModal.classList.remove('hideModal')
-};
+DOMElements.loginUsername.value = urlName;
+DOMElements.loginPasscode.value = urlPwd;
+DOMElements.loginButton.disabled = (DOMElements.loginPasscode.validity.valid === false) || (DOMElements.loginUsername.value === '')
+DOMElements.loginModal.classList.remove('hideModal');
 
 peer.on('open', (id) => { user.peerID = id });
 
@@ -42,18 +38,15 @@ peer.on('call', (ring) => {
 });
 
 socket.on('connect', () => {
+    socket.sendBuffer = [];
     DOMElements.sendButton.disabled = false;
     socket.emit('new-user', { name: user.userName, connectionTime: Date.now() });
 	socket.emit('req-users');
-	socket.on('rec-users', (users) => {
-        allUsers = users;
-		listUsers(allUsers);
-	});
     appendMessage("You joined! ⚡");
 });
 
-socket.on('user-connected', (name) => {
-    appendMessage(`${name} connected 🤝🏽`);
+socket.on('user-connected', (userName) => {
+    appendMessage(`${userName} connected 🤝🏽`);
 });
 
 socket.on('user-disconnected', (userName) => {

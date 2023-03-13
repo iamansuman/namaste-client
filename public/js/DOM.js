@@ -98,8 +98,8 @@ function appendCall(type='audio', bySender=false, peerID=null, socketID=null, se
 DOMElements.loginUsername.addEventListener('input', (e) => { DOMElements.loginButton.disabled = (DOMElements.loginPasscode.validity.valid === false) || (DOMElements.loginUsername.value === '') });
 DOMElements.loginPasscode.addEventListener('input', (e) => { DOMElements.loginButton.disabled = (DOMElements.loginPasscode.validity.valid === false) || (DOMElements.loginUsername.value === '') });
 
-function passCreds(e){
-	e.preventDefault();
+function passCreds(e, resetFields=true){
+	if (e) e.preventDefault();
 	DOMElements.loginButton.disabled = true;
 	const userName = String(DOMElements.loginUsername.value);
 	const userPass = String(DOMElements.loginPasscode.value);
@@ -110,8 +110,10 @@ function passCreds(e){
     	socket.connect();
 	} else {
 		alert("Invalid Username or Passcode");
-		DOMElements.loginUsername.value = '';
-		DOMElements.loginPasscode.value = '';
-		DOMElements.loginButton.disabled = false;
+		if (resetFields){
+			DOMElements.loginUsername.value = '';
+			DOMElements.loginPasscode.value = '';
+			DOMElements.loginButton.disabled = true;
+		}
 	}
 }

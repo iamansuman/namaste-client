@@ -15,11 +15,15 @@ const users = []
 
 io.on('connection', socket => {
 	socket.on('new-user', userData => {
-		let user = { name: userData.name, id: socket.id, connectionTime: userData.connectionTime };
-		users.push(user);
-		socket.broadcast.emit('user-connected', userData.name);
-		io.sockets.emit('usersList', users);
-		console.log(`${userData.name} connected`);
+		const userInStore = users[users.findIndex((obj) => {return obj.id == socket.id})];
+		if (!userInStore){
+			console.log("New user!", users);
+			let user = { name: userData.name, id: socket.id, connectionTime: userData.connectionTime };
+			users.push(user);
+			socket.broadcast.emit('user-connected', userData.name);
+			io.sockets.emit('usersList', users);
+			console.log(`${userData.name} connected`);
+		}
 	});
 	socket.on('req-users', () => {
 		io.to(socket.id).emit('usersList', users);
