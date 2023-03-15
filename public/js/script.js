@@ -1,5 +1,5 @@
 const socket = io({ autoConnect: false });
-const peer = (navigator.onLine) ? new Peer() : new Peer({ host: 'localhost', port: 8082, path: '/' });
+const peer = new Peer();
 const user = { userName: null, key: null, peerID: null, currentCall: null, currentCallRemoteSocketID: null };
 let allUsers = []; //<- Not necessary, good to keep
 
