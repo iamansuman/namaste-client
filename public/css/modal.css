@@ -18,7 +18,7 @@
     cursor: pointer;
 }
 
-.hideModal{
+.hide{
     display: none !important;
 }
 
@@ -102,4 +102,22 @@
 .modalContentsContainer .callControls img{
     cursor: pointer;
     aspect-ratio: 1/1;
+}
+
+.floatingBtn{
+    padding: 0.5rem;
+    position: absolute;
+    height: 5vmin;
+    width: 5vmin;
+    background-color: var(--theme-color-light);
+    border: 2px solid var(--theme-color-dark);
+    border-radius: 5vmin;
+    cursor: pointer;
+    z-index: 10;
+    animation: flash 1000ms linear 0ms infinite alternate none;
+}
+
+@keyframes flash {
+    0% { opacity: 0.65 }
+    100% { opacity: 1 }
 }

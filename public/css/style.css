@@ -12,9 +12,15 @@
     -webkit-user-select: none;
     user-select: none;
     --theme-color: #d544fc;
-    --theme-color-light: #e587ff;
+    --theme-color-light: #eba5ff;
     --theme-color-dark: #6c1d82;
     --background-image: url('./../imgs/bg-raimond-klavins-Ql6JhGdbQg0-unsplash.jpg');
+}
+
+.namasteTextLogo{
+    font-family: 'AnandaNamasteRegular';
+    color: inherit;
+    text-align: center;
 }
 
 #menu{
@@ -102,10 +108,6 @@
     align-items: center;
     justify-content: space-between;
     background-color: #fff;
-}
-
-.header h1{
-    font-family: 'AnandaNamasteRegular';
 }
 
 .header img{

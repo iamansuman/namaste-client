@@ -1,13 +1,14 @@
 const DOMElements = {
 	loginModal: document.getElementById("loginModal"),
 	loginUsername: document.getElementById("login_username"),
-	loginPasscode: document.getElementById("login_passcode"),//look for loginPasscode.loginPasscode.validity.valid
+	loginPasscode: document.getElementById("login_passcode"),
 	loginButton: document.getElementById("login_btn"),
 	messageContainer: document.getElementById("msg-container"),
 	Menu: document.getElementById("menu"),
 	sendButton: document.getElementById("send-btn"),
 	activeUserList: document.getElementById("activeUsers"),
 	videoCallModal: document.getElementById("videoCallModal"),
+	videoCallModalFloatBtn: document.getElementById("videoCallModalFloatBtn"),
 	myVideo: document.getElementById("myVideo"),
 	myWaveform: document.getElementById("myWaveform"),
 	remoteVideo: document.getElementById("remoteVideo"),
@@ -28,6 +29,45 @@ function copyToClipboard() {
 	const inviteLink = location.href.split('?')[0] + "?pwd=" + user.key;
     navigator.clipboard.writeText(inviteLink);
 	alert("Link copied!");
+}
+
+function toggleView(toHide=[], toShow=[]){
+	toHide.forEach((DOMElement) => DOMElement.classList.add('hide'));
+	toShow.forEach((DOMElement) => DOMElement.classList.remove('hide'));
+}
+
+function dragElement(DOMElement = new HTMLElement){
+	DOMElement.style.left = `${0}px`;
+	DOMElement.style.top = `${(window.innerHeight/2) - DOMElement.offsetHeight}px`;
+	let InitialMousePosX = 0, InitialMousePosY = 0, FinalMousePosX = 0, FinalMousePosY = 0;
+	DOMElement.onmousedown = (e) => {
+		e = e || window.event;
+		e.preventDefault();
+		InitialMousePosX = e.clientX;
+		InitialMousePosY = e.clientY;
+    	document.onmousemove = (e) => {
+			e = e || window.event;
+			e.preventDefault();
+			FinalMousePosX = InitialMousePosX - e.clientX;
+			FinalMousePosY = InitialMousePosY - e.clientY;
+			InitialMousePosX = e.clientX;
+			InitialMousePosY = e.clientY;
+			let wannaBeXPos = DOMElement.offsetLeft - FinalMousePosX;
+			let wannaBeYPos = DOMElement.offsetTop - FinalMousePosY;
+			if (wannaBeXPos < 0) DOMElement.style.left = `${0}px`;
+			else if (wannaBeXPos > (window.innerWidth - DOMElement.offsetWidth)) DOMElement.style.left = `${window.innerWidth - DOMElement.offsetWidth}px`;
+			else DOMElement.style.left = `${wannaBeXPos}px`;
+			if (wannaBeYPos < 0) DOMElement.style.top = `${0}px`;
+			else if (wannaBeYPos > (window.innerHeight - DOMElement.offsetHeight)) DOMElement.style.top = `${window.innerHeight - DOMElement.offsetHeight}px`;
+			else DOMElement.style.top = `${wannaBeYPos}px`;
+		}
+		document.onmouseup = (e) => {
+			e.stopPropagation();
+			DOMElement.style.left = (DOMElement.offsetLeft < window.innerWidth/2) ? `${0}px` : `${window.innerWidth - DOMElement.offsetWidth}px`;
+    		document.onmousemove = null;
+			document.onmouseup = null;
+		}
+	}
 }
 
 function listUsers(users=[]){
@@ -95,18 +135,16 @@ function appendCall(type='audio', bySender=false, peerID=null, socketID=null, se
 	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
 }
 
-DOMElements.loginUsername.addEventListener('input', (e) => { DOMElements.loginButton.disabled = (DOMElements.loginPasscode.validity.valid === false) || (DOMElements.loginUsername.value === '') });
-DOMElements.loginPasscode.addEventListener('input', (e) => { DOMElements.loginButton.disabled = (DOMElements.loginPasscode.validity.valid === false) || (DOMElements.loginUsername.value === '') });
-
 function passCreds(e, resetFields=true){
 	if (e) e.preventDefault();
 	DOMElements.loginButton.disabled = true;
 	const userName = String(DOMElements.loginUsername.value);
 	const userPass = String(DOMElements.loginPasscode.value);
-	if (userName && userPass.length >= 8){
+	if (userName && userPass.length >= 8 && socket && peer){
 		user.userName = userName;
 		user.key = userPass;
-		DOMElements.loginModal.classList.add('hideModal');
+		toggleView([DOMElements.loginModal])
+		// DOMElements.loginModal.classList.add('hide');
     	socket.connect();
 	} else {
 		alert("Invalid Username or Passcode");
@@ -117,3 +155,9 @@ function passCreds(e, resetFields=true){
 		}
 	}
 }
+
+//Execution
+toggleView([DOMElements.videoCallModal, DOMElements.videoCallModalFloatBtn], [DOMElements.loginModal]);
+DOMElements.loginUsername.addEventListener('input', (e) => { DOMElements.loginButton.disabled = (DOMElements.loginPasscode.validity.valid === false) || (DOMElements.loginUsername.value === '') });
+DOMElements.loginPasscode.addEventListener('input', (e) => { DOMElements.loginButton.disabled = (DOMElements.loginPasscode.validity.valid === false) || (DOMElements.loginUsername.value === '') });
+dragElement(DOMElements.videoCallModalFloatBtn);

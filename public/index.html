@@ -13,16 +13,18 @@
 <body>
     <div id="loginModal" class="modalBackGround">
         <div class="modalContentsContainer">
+            <h1 class="namasteTextLogo" title="Namaste">Namaste</h1>
             <form onsubmit="passCreds(event)">
                 <input type="text" id="login_username" title="Username" required placeholder="Username"/>
-                <input type="text" id="login_passcode" title="PassCode" required placeholder="Passcode (min. 8 digits)" pattern="[0-9]+" minlength="8"/>
+                <input type="text" id="login_passcode" title="PassCode" required placeholder="Passcode (min. 8 letters)" minlength="8"/>
                 <input type="submit" disabled id="login_btn" disabled value="Enter">
             </form>
         </div>
     </div>
 
-    <div id="videoCallModal" class="modalBackGround hideModal">
-        <!-- <img class="closeModalBtn" src="./imgs/close.svg" alt="Close" title="Close" onclick="this.parentElement.classList.add('hideModal')"> -->
+    <img id="videoCallModalFloatBtn" class="floatingBtn hide" data-target-modal="videoCallModal" src="./imgs/video-call.svg" alt="Return to Call" title="[Double Click] Return to Call Window" ondblclick="toggleView([this], [document.getElementById(this.dataset.targetModal)])"/>
+    <div id="videoCallModal" class="modalBackGround hide" data-target-float-btn="videoCallModalFloatBtn">
+        <img class="closeModalBtn" src="./imgs/close.svg" alt="Close" title="Close" onclick="toggleView([this.parentElement], [document.getElementById(this.parentElement.dataset.targetFloatBtn)])">
         <div class="modalContentsContainer">
             <div class="videoContainer">
                 <video id="myVideo" muted autoplay poster="./imgs/no-connection.jpeg"></video>
@@ -53,8 +55,8 @@
 
     <div class="mainview">
         <div class="header">
-            <img src="./imgs/hamburger.svg" alt="Menu" title="Menu" onclick="openMenu()">
-            <h1 title="Namaste">Namaste</h1>
+            <img src="./imgs/menu.svg" alt="Menu" title="Menu" onclick="openMenu()">
+            <h1 class="namasteTextLogo" title="Namaste">Namaste</h1>
             <img src="./imgs/share.svg" alt="Share" title="Share link to this room" onclick="copyToClipboard()">
         </div>
         <div id="msg-container"></div>
@@ -65,7 +67,7 @@
             <input type="image" src="./imgs/send.svg" alt="Send" id="send-btn" title="Send" disabled />
         </form>
     </div>
-    
+
     <script defer src="https://unpkg.com/lzutf8@latest/build/production/lzutf8.min.js"></script>
     <script defer src="https://unpkg.com/peerjs@latest/dist/peerjs.min.js"></script>
 	<script defer src="https://unpkg.com/socket.io@latest/client-dist/socket.io.min.js"></script>

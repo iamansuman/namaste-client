@@ -1,7 +1,7 @@
 const socket = io({ autoConnect: false });
-const peer = new Peer();
+const peer = (navigator.onLine) ? new Peer() : new Peer({ host: 'localhost', port: 8082, path: '/' });
 const user = { userName: null, key: null, peerID: null, currentCall: null, currentCallRemoteSocketID: null };
-let allUsers = [];  //<- Not necessary, good to keep
+let allUsers = []; //<- Not necessary, good to keep
 
 const usp = new URLSearchParams(document.location.href.split('?')[1]);
 const urlName = usp.get("name");
@@ -11,8 +11,9 @@ if (urlPwd) user.key = String(urlPwd).length >=8 ? String(urlPwd) : null;
 
 DOMElements.loginUsername.value = urlName;
 DOMElements.loginPasscode.value = urlPwd;
-DOMElements.loginButton.disabled = (DOMElements.loginPasscode.validity.valid === false) || (DOMElements.loginUsername.value === '')
-DOMElements.loginModal.classList.remove('hideModal');
+DOMElements.loginButton.disabled = (DOMElements.loginPasscode.validity.valid === false) || (DOMElements.loginUsername.value === '');
+
+if (Notification.permission !== 'granted') Notification.requestPermission();
 
 peer.on('open', (id) => { user.peerID = id });
 
@@ -20,13 +21,14 @@ peer.on('call', (ring) => {
     user.currentCall = ring;
     user.currentCallRemoteSocketID = ring.metadata.peerSocketID;
     const callType = ring.metadata.callType;
-    DOMElements.myVideo.poster = (callType=='audio') ? "./imgs/on-audio-call.jpg" : "./imgs/no-connection.jpeg";
-    DOMElements.remoteVideo.poster = (callType=='audio') ? "./imgs/on-audio-call.jpg" : "./imgs/no-connection.jpeg";
+    DOMElements.myVideo.poster = DOMElements.remoteVideo.poster = (callType=='audio') ? "./imgs/on-audio-call.jpg" : "./imgs/no-connection.jpeg";
+    DOMElements.videoCallModalFloatBtn.src = (callType=='audio') ? './imgs/call.svg' : './imgs/video-call.svg' ;
     navigator.mediaDevices.getUserMedia({ video: Boolean(callType == 'video'), audio:true })
     .then((stream) => {
         DOMElements.myVideo.srcObject = stream;
         WaveformLocal.draw(stream, DOMElements.myWaveform);
-        DOMElements.videoCallModal.classList.remove('hideModal');
+        toggleView([], [DOMElements.videoCallModal]);
+        // DOMElements.videoCallModal.classList.remove('hide');
         ring.answer(stream);
         ring.on('stream', (remoteStream) => {
             DOMElements.remoteVideo.srcObject = remoteStream;
@@ -46,17 +48,33 @@ socket.on('connect', () => {
 });
 
 socket.on('user-connected', (userName) => {
-    appendMessage(`${userName} connected 🤝🏽`);
+    appendMessage(`${userName} connected 🤝`);
 });
 
 socket.on('user-disconnected', (userName) => {
-    appendMessage(`${userName} disconnected 👋🏽`);
+    appendMessage(`${userName} disconnected 👋`);
 });
 
 socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => {
 	const msgBody = decrypt(messageBody, user.key);
-	if (msgBody != "" || msgBody != null || msgBody != undefined) appendMessage(`${senderName}: ${msgBody}`, 1)
-    else appendMessage(`${data.name} is trying to send a message but his/her passcode isn't the same as yours`);
+	if (msgBody != "" || msgBody != null || msgBody != undefined){
+        appendMessage(`${senderName}: ${msgBody}`, 1);
+        if (document.hidden && Notification.permission === 'granted'){
+            const msgNoti = new Notification(senderName, {
+                title: `From ${senderName}`,
+                body: msgBody,
+                icon: './imgs/app/namaste-192x192.png',
+                vibrate: [200, 100, 250],
+                renotify: true,
+                tag: 'chat-message',
+                timestamp: timeStamp
+            });
+            msgNoti.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.parent.parent.focus();
+            });
+        }
+    } else appendMessage(`${data.name} is trying to send a message but his/her passcode isn't the same as yours`);
 });
 
 socket.on('usersList', (users) => {
@@ -67,6 +85,22 @@ socket.on('usersList', (users) => {
 socket.on('call-request', ({ senderName, senderID, peerID, callType, timeStamp }) => {
     const remotePeerID = decrypt(peerID, user.key);
     appendCall(callType, true, remotePeerID, senderID, senderName, timeStamp);
+    if (document.hidden && Notification.permission === 'granted'){
+        const msgNoti = new Notification(senderName, {
+            title: `From ${senderName}`,
+            body: `${String(callType).replace(/^\w/, char => char.toUpperCase())} Call From ${senderName}\n[Click To attend call]`,
+            icon: './imgs/app/namaste-192x192.png',
+            vibrate: [200, 100, 250],
+            renotify: true,
+            tag: 'chat-message',
+            timestamp: timeStamp
+        });
+        msgNoti.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.parent.parent.focus();
+            joinCall(callType, peerID, senderID);
+        })
+    }
 });
 
 socket.on('end-call', () => { endCall(true) });
@@ -96,16 +130,16 @@ function sendCallRequest(type='audio'){
     appendCall(type, false, user.peerID, socket.id, user.userName, Date.now());
 }
 
-function joinCall(type='audio', peerID=null, socketID=null){    //  <- check this while building appendCall, also check for socketid
+function joinCall(type='audio', peerID=null, socketID=null){
 	if (peerID == null) return;
-    DOMElements.myVideo.poster = (type=='audio') ? "./imgs/on-audio-call.jpg" : "./imgs/no-connection.jpeg";
-    DOMElements.remoteVideo.poster = (type=='audio') ? "./imgs/on-audio-call.jpg" : "./imgs/no-connection.jpeg";
+    DOMElements.myVideo.poster = DOMElements.remoteVideo.poster = (type=='audio') ? "./imgs/on-audio-call.jpg" : "./imgs/no-connection.jpeg";
+    DOMElements.videoCallModalFloatBtn.src = (type=='audio') ? './imgs/call.svg' : './imgs/video-call.svg' ;
     user.currentCallRemoteSocketID = socketID;
 	navigator.mediaDevices.getUserMedia({ video: Boolean(type=='video'), audio:true })
     .then((stream) => {
         DOMElements.myVideo.srcObject = stream;
         WaveformLocal.draw(stream, DOMElements.myWaveform);
-        DOMElements.videoCallModal.classList.remove('hideModal');
+        toggleView([DOMElements.videoCallModalFloatBtn], [DOMElements.videoCallModal])
         let call = user.currentCall = peer.call(peerID, stream, {metadata: { callType: type, peerSocketID: socket.id }});
         call.on('stream', (remoteStream) => {
             DOMElements.remoteVideo.srcObject = remoteStream;
@@ -118,24 +152,26 @@ function joinCall(type='audio', peerID=null, socketID=null){    //  <- check thi
 
 function endCall(fromServer=false, sendRequestToSocketID=user.currentCallRemoteSocketID){
     if (user.currentCall) user.currentCall.close();
-    DOMElements.myVideo.srcObject.getTracks().forEach(track => {
-        track.stop();
-        DOMElements.myVideo.srcObject.removeTrack(track);
-    });
+    if (DOMElements.myVideo.srcObject){
+        DOMElements.myVideo.srcObject.getTracks().forEach(track => {
+            track.stop();
+            DOMElements.myVideo.srcObject.removeTrack(track);
+        });
+    }
     DOMElements.myVideo.src = '';
     DOMElements.myVideo.load();
-    DOMElements.remoteVideo.srcObject.getTracks().forEach(track => {
-        track.stop();
-        DOMElements.remoteVideo.srcObject.removeTrack(track);
-    });
+    if (DOMElements.remoteVideo.srcObject){
+        DOMElements.remoteVideo.srcObject.getTracks().forEach(track => {
+            track.stop();
+            DOMElements.remoteVideo.srcObject.removeTrack(track);
+        });
+    }
     DOMElements.remoteVideo.src = '';
     DOMElements.remoteVideo.load();
     WaveformLocal.stop();
     WaveformRemote.stop();
     user.currentCall = null;
     user.currentCallRemoteSocketID = null;
-    DOMElements.videoCallModal.classList.add('hideModal');
-    if (!fromServer) {
-        socket.emit('send-end-call', { socketID: sendRequestToSocketID });
-    }
+    toggleView([DOMElements.videoCallModal, DOMElements.videoCallModalFloatBtn]);
+    if (!fromServer) socket.emit('send-end-call', { socketID: sendRequestToSocketID });
 }

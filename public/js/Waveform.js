@@ -34,7 +34,7 @@ const WaveformLocal = {
     },
     stop: () => {
         if (WaveformLocal.animationID != null) cancelAnimationFrame(WaveformLocal.animationID);
-        WaveformLocal.canvas.getContext('2d').clearRect(0, 0, WaveformLocal.canvas.width, WaveformLocal.canvas.height);
+        if (WaveformLocal.canvas) WaveformLocal.canvas.getContext('2d').clearRect(0, 0, WaveformLocal.canvas.width, WaveformLocal.canvas.height);
         WaveformLocal.animationID = null;
     }
 }
@@ -76,7 +76,7 @@ const WaveformRemote = {
     },
     stop: () => {
         if (WaveformRemote.animationID != null) cancelAnimationFrame(WaveformRemote.animationID);
-        WaveformRemote.canvas.getContext('2d').clearRect(0, 0, WaveformRemote.canvas.width, WaveformRemote.canvas.height);
+        if (WaveformRemote.canvas) WaveformRemote.canvas.getContext('2d').clearRect(0, 0, WaveformRemote.canvas.width, WaveformRemote.canvas.height);
         WaveformRemote.animationID = null;
     }
 }
