@@ -1,4 +1,5 @@
-var PORT = process.env.PORT || 8081;
+if (process.env.APP_STATE === 'PROD') console.log = function() {}
+const PORT = process.env.PORT || 8081;
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
@@ -11,13 +12,12 @@ const io = require('socket.io')(server, {
 
 app.use(express.static('public'));
 
-const users = []
+const users = [];
 
 io.on('connection', socket => {
 	socket.on('new-user', userData => {
 		const userInStore = users[users.findIndex((obj) => {return obj.id == socket.id})];
 		if (!userInStore){
-			console.log("New user!", users);
 			let user = { name: userData.name, id: socket.id, connectionTime: userData.connectionTime };
 			users.push(user);
 			socket.broadcast.emit('user-connected', userData.name);
