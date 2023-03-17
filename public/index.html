@@ -22,49 +22,52 @@
         </div>
     </div>
 
-    <img id="videoCallModalFloatBtn" class="floatingBtn hide" data-target-modal="videoCallModal" src="./imgs/video-call.svg" alt="Return to Call" title="[Double Click] Return to Call Window" ondblclick="toggleView([this], [document.getElementById(this.dataset.targetModal)])"/>
+    <img id="videoCallModalFloatBtn" class="floatingBtn hide" data-target-modal="videoCallModal" src="./imgs/app/video-call.svg" alt="Return to Call" title="[Double Click] Return to Call Window" ondblclick="toggleView([this], [document.getElementById(this.dataset.targetModal)])"/>
     <div id="videoCallModal" class="modalBackGround hide" data-target-float-btn="videoCallModalFloatBtn">
-        <img class="closeModalBtn" src="./imgs/close.svg" alt="Close" title="Close" onclick="toggleView([this.parentElement], [document.getElementById(this.parentElement.dataset.targetFloatBtn)])">
+        <img class="closeModalBtn" src="./imgs/app/close.svg" alt="Close" title="Close" onclick="toggleView([this.parentElement], [document.getElementById(this.parentElement.dataset.targetFloatBtn)])">
         <div class="modalContentsContainer">
             <div class="videoContainer">
-                <video id="myVideo" muted autoplay poster="./imgs/no-connection.jpeg"></video>
-                <video id="remoteVideo" autoplay poster="./imgs/no-connection.jpeg"></video>
+                <video id="myVideo" muted autoplay poster="./imgs/app/no-connection.jpeg"></video>
+                <video id="remoteVideo" autoplay poster="./imgs/app/no-connection.jpeg"></video>
             </div>
             <div class="callControls">
                 <canvas id="myWaveform"></canvas>
-                <img src="./imgs/call-end.svg" alt="End Call" onclick="endCall()">
+                <img src="./imgs/app/call-end.svg" alt="End Call" onclick="endCall()">
                 <canvas id="remoteWaveform" style="transform: rotate(180deg);"></canvas>
             </div>
         </div>
     </div>
 
-    <div id="menu">
+    <div id="activeUsersListContainer">
         <div class="toprow">
-            <img src="./imgs/close.svg" alt="Close Menu" title="Close menu" onclick="closeMenu()">
+            <img src="./imgs/app/close.svg" alt="Close" title="Close Users List" onclick="closeUsersList()">
             <h1>Active Users</h1>
+            <img src="./imgs/app/share-white.svg" alt="Share" title="Share link to this room" onclick="copyToClipboard()">
         </div>
-        <ul style="flex: none">
-            <li style="border-bottom: 2px solid #fff;">
-                <h2 style="color: #fff;">UserName</h2>
-                <h2 style="color: #fff;">Connection ID</h2>
-                <h2 style="color: #fff;">Connected Since</h2>
-            </li>
-        </ul>
-        <ul id="activeUsers"></ul>
+        <table id="activeUsers">
+            <thead>
+                <tr>
+                    <th>User's Name</th>
+                    <th>Connection ID</th>
+                    <th>Connected Since</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 
     <div class="mainview">
         <div class="header">
-            <img src="./imgs/menu.svg" alt="Menu" title="Menu" onclick="openMenu()">
+            <img src="./imgs/app/users.svg" alt="Users List" title="Open Users List" onclick="openUsersList()">
             <h1 class="namasteTextLogo" title="Namaste">Namaste</h1>
-            <img src="./imgs/share.svg" alt="Share" title="Share link to this room" onclick="copyToClipboard()">
+            <img src="./imgs/app/settings.svg" alt="Settings" title="Settings" class="rotateOnHover">
         </div>
         <div id="msg-container"></div>
         <form id="send-container" onsubmit="sendMessage(event)">
-            <img src="./imgs/call.svg" alt="Call" title="Call" onclick="sendCallRequest('audio')" />
-            <img src="./imgs/video-call.svg" alt="Video Call" title="Video Call" onclick="sendCallRequest('video')" />
+            <img src="./imgs/app/call.svg" alt="Call" title="Call" onclick="sendCallRequest('audio')" />
+            <img src="./imgs/app/video-call.svg" alt="Video Call" title="Video Call" onclick="sendCallRequest('video')" />
             <input name="txtMsgBox" placeholder="Message" title="Enter your Message" tabindex="0" onload="this.focus()" required autocomplete="off" id="txt-msg-box" />
-            <input type="image" src="./imgs/send.svg" alt="Send" id="send-btn" title="Send" disabled />
+            <input type="image" src="./imgs/app/send.svg" alt="Send" id="send-btn" title="Send" disabled />
         </form>
     </div>
 

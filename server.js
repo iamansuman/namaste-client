@@ -14,10 +14,13 @@ app.use(express.static('public'));
 
 const users = [];
 
+function findUser(socketID = socket.id){
+	return users[users.findIndex((obj) => {return obj.id == socketID})];
+}
+
 io.on('connection', socket => {
 	socket.on('new-user', userData => {
-		const userInStore = users[users.findIndex((obj) => {return obj.id == socket.id})];
-		if (!userInStore){
+		if (!findUser(socket.id)){
 			let user = { name: userData.name, id: socket.id, connectionTime: userData.connectionTime };
 			users.push(user);
 			socket.broadcast.emit('user-connected', userData.name);
@@ -29,21 +32,20 @@ io.on('connection', socket => {
 		io.to(socket.id).emit('usersList', users);
 	});
 	socket.on('send-chat-message', ({ messageBody, timeStamp }) => {
-		const user = users[users.findIndex((obj) => {return obj.id == socket.id})];
+		const user = findUser(socket.id);
 		if (user) socket.broadcast.emit('chat-message', { senderName: user.name, senderID: socket.id, messageBody, timeStamp });
 	});
 	socket.on('send-call-request', ({ peerID, callType, timeStamp }) => {
-		const user = users[users.findIndex((obj) => {return obj.id == socket.id})];
+		const user = findUser(socket.id);
 		if (user) socket.broadcast.emit('call-request', { senderName: user.name, senderID: socket.id, peerID, callType, timeStamp });
 	});
 	socket.on('send-end-call', ({ socketID }) => {
-		const user = users[users.findIndex((obj) => {return obj.id == socket.id})];
-		if (user) socket.to(socketID).emit('end-call');
+		if (findUser(socketID)) socket.to(socketID).emit('end-call');
 	});
 	socket.on('disconnect', () => {
 		const userIndex = users.findIndex((obj) => {return obj.id == socket.id});
 		if (users[userIndex]){
-			socket.broadcast.emit('user-disconnected', users[userIndex].name);
+			socket.broadcast.emit('user-disconnected', users[userIndex]);
 			console.log(`${users[userIndex].name} disconnected`);
 			users.splice(userIndex, 1);
 			io.sockets.emit('usersList', users);

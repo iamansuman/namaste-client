@@ -4,7 +4,7 @@ const DOMElements = {
 	loginPasscode: document.getElementById("login_passcode"),
 	loginButton: document.getElementById("login_btn"),
 	messageContainer: document.getElementById("msg-container"),
-	Menu: document.getElementById("menu"),
+	activeUsersListContainer: document.getElementById("activeUsersListContainer"),
 	sendButton: document.getElementById("send-btn"),
 	activeUserList: document.getElementById("activeUsers"),
 	videoCallModal: document.getElementById("videoCallModal"),
@@ -17,12 +17,12 @@ const DOMElements = {
 
 document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-function openMenu(){
-	DOMElements.Menu.classList.add('menu-open');
+function openUsersList(){
+	DOMElements.activeUsersListContainer.classList.add('activeUsersListContainer-open');
 }
 
-function closeMenu(){
-	DOMElements.Menu.classList.remove('menu-open');
+function closeUsersList(){
+	DOMElements.activeUsersListContainer.classList.remove('activeUsersListContainer-open');
 }
 
 function copyToClipboard() {
@@ -70,21 +70,23 @@ function dragElement(DOMElement = new HTMLElement){
 	}
 }
 
-function listUsers(users=[]){
-	DOMElements.activeUserList.innerHTML = null;
-	users.forEach(user => {
+function listUsers(users=allUsers, clearTable=false){
+	DOMElements.activeUserList.getElementsByTagName('tbody')[0].innerHTML = null;
+	if (clearTable) return;
+	if (users) users.forEach(user => {
 		if (user){
 			let CT = new Date(user.connectionTime);
-			let li = document.createElement('li');
-			let spName = document.createElement('span');
-			spName.innerText = user.name;
-			let spID = document.createElement('span');
-			spID.innerText = user.id;
-			let spCT = document.createElement('span');
-			spCT.innerText = `${String(CT.getHours()).padStart(2, '0')}:${String(CT.getMinutes()).padStart(2, '0')}:${String(CT.getSeconds()).padStart(2, '0')} - ${CT.getDate()}/${CT.getMonth()+1}/${CT.getFullYear()}`;
-			li.append(spName, spID, spCT);
-			DOMElements.activeUserList.append(li);
-			li.scrollIntoView({ behavior: 'smooth' });
+			let tr = document.createElement('tr');
+			let tdName = document.createElement('td');
+			let tdConnectionID = document.createElement('td');
+			let tdConnectionTime = document.createElement('td');
+			if (user.id == socket.id) tr.style.backgroundColor = 'var(--theme-color-dark)';
+			tdName.innerText = user.name;
+			tdConnectionID.innerText = user.id;
+			tdConnectionTime.innerText = `${CT.getDate()}/${CT.getMonth()+1}/${CT.getFullYear()} at ${String(CT.getHours()).padStart(2, '0')}:${String(CT.getMinutes()).padStart(2, '0')}:${String(CT.getSeconds()).padStart(2, '0')}`;
+			tr.append(tdName, tdConnectionID, tdConnectionTime);
+			DOMElements.activeUserList.getElementsByTagName('tbody')[0].append(tr);
+			tr.scrollIntoView({ behavior: 'smooth' });
 			if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
 		}
 	});
@@ -119,7 +121,7 @@ function appendCall(type='audio', bySender=false, peerID=null, socketID=null, se
 	requestCallElement.style.borderRadius = (bySender) ? '0 0.75rem 0.75rem 0' : '0.75rem 0 0 0.75rem';
 	const div = document.createElement('div');
 	const callImage = document.createElement('img');
-	callImage.src = (type=='video') ? "./imgs/video-call.svg" : "./imgs/call.svg";
+	callImage.src = (type=='video') ? "./imgs/app/video-call.svg" : "./imgs/app/call.svg";
 	div.append(callImage);
 	const callBtn = document.createElement('button');
 	callBtn.innerText = `Ring ${senderName}`;

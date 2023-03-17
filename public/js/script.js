@@ -21,8 +21,8 @@ peer.on('call', (ring) => {
     user.currentCall = ring;
     user.currentCallRemoteSocketID = ring.metadata.peerSocketID;
     const callType = ring.metadata.callType;
-    DOMElements.myVideo.poster = DOMElements.remoteVideo.poster = (callType=='audio') ? "./imgs/on-audio-call.jpg" : "./imgs/no-connection.jpeg";
-    DOMElements.videoCallModalFloatBtn.src = (callType=='audio') ? './imgs/call.svg' : './imgs/video-call.svg' ;
+    DOMElements.myVideo.poster = DOMElements.remoteVideo.poster = (callType=='audio') ? "./imgs/app/on-audio-call.jpg" : "./imgs/app/no-connection.jpeg";
+    DOMElements.videoCallModalFloatBtn.src = (callType=='audio') ? './imgs/app/call.svg' : './imgs/app/video-call.svg' ;
     navigator.mediaDevices.getUserMedia({ video: Boolean(callType == 'video'), audio:true })
     .then((stream) => {
         DOMElements.myVideo.srcObject = stream;
@@ -51,8 +51,9 @@ socket.on('user-connected', (userName) => {
     appendMessage(`${userName} connected 🤝`);
 });
 
-socket.on('user-disconnected', (userName) => {
-    appendMessage(`${userName} disconnected 👋`);
+socket.on('user-disconnected', (disconnectedUser) => {
+    appendMessage(`${disconnectedUser.name} disconnected 👋`);
+    if (user.currentCallRemoteSocketID == disconnectedUser.id) endCall(true);
 });
 
 socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => {
@@ -63,7 +64,7 @@ socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => 
             const msgNoti = new Notification(senderName, {
                 title: `From ${senderName}`,
                 body: msgBody,
-                icon: './imgs/app/namaste-192x192.png',
+                icon: './imgs/namaste/namaste-192x192.png',
                 vibrate: [200, 100, 250],
                 renotify: true,
                 tag: 'chat-message',
@@ -89,7 +90,7 @@ socket.on('call-request', ({ senderName, senderID, peerID, callType, timeStamp }
         const msgNoti = new Notification(senderName, {
             title: `From ${senderName}`,
             body: `${String(callType).replace(/^\w/, char => char.toUpperCase())} Call From ${senderName}\n[Click To attend call]`,
-            icon: './imgs/app/namaste-192x192.png',
+            icon: './imgs/namaste/namaste-192x192.png',
             vibrate: [200, 100, 250],
             renotify: true,
             tag: 'chat-message',
@@ -98,7 +99,7 @@ socket.on('call-request', ({ senderName, senderID, peerID, callType, timeStamp }
         msgNoti.addEventListener('click', (e) => {
             e.preventDefault();
             window.parent.parent.focus();
-            joinCall(callType, peerID, senderID);
+            joinCall(callType, remotePeerID, senderID);
         })
     }
 });
@@ -132,8 +133,8 @@ function sendCallRequest(type='audio'){
 
 function joinCall(type='audio', peerID=null, socketID=null){
 	if (peerID == null) return;
-    DOMElements.myVideo.poster = DOMElements.remoteVideo.poster = (type=='audio') ? "./imgs/on-audio-call.jpg" : "./imgs/no-connection.jpeg";
-    DOMElements.videoCallModalFloatBtn.src = (type=='audio') ? './imgs/call.svg' : './imgs/video-call.svg' ;
+    DOMElements.myVideo.poster = DOMElements.remoteVideo.poster = (type=='audio') ? "./imgs/app/on-audio-call.jpg" : "./imgs/app/no-connection.jpeg";
+    DOMElements.videoCallModalFloatBtn.src = (type=='audio') ? './imgs/app/call.svg' : './imgs/app/video-call.svg' ;
     user.currentCallRemoteSocketID = socketID;
 	navigator.mediaDevices.getUserMedia({ video: Boolean(type=='video'), audio:true })
     .then((stream) => {

@@ -16,6 +16,7 @@
     height: 2.5em;
     width: 2.5em;
     cursor: pointer;
+    z-index: 10;
 }
 
 .hide{
@@ -38,6 +39,10 @@
     justify-content: space-between;
     align-items: stretch;
     z-index: 2;
+}
+
+.modalContentsContainer h1{
+    text-align: center;
 }
 
 /* For Login Modal */
