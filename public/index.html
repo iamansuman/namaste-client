@@ -25,9 +25,9 @@
         </div>
     </div>
 
-    <img class="Button" id="videoCallModalFloatBtn" class="floatingBtn hide" data-target-modal="videoCallModal" src="./imgs/app/video-call.svg" alt="Return to Call" title="[Double Click] Return to Call Window" ondblclick="toggleView([this], [document.getElementById(this.dataset.targetModal)])"/>
+    <img id="videoCallModalFloatBtn" class="floatingBtn hide" data-target-modal="videoCallModal" src="./imgs/app/video-call.svg" alt="Return to Call" title="[Double Click] Return to Call Window" ondblclick="toggleView([this], [document.getElementById(this.dataset.targetModal)])"/>
     <div id="videoCallModal" class="modalBackGround hide" data-target-float-btn="videoCallModalFloatBtn">
-        <img class="Button" class="closeModalBtn" src="./imgs/app/close.svg" alt="Close" title="Close" onclick="toggleView([this.parentElement], [document.getElementById(this.parentElement.dataset.targetFloatBtn)])">
+        <img class="closeModalBtn" src="./imgs/app/close.svg" alt="Close" title="Close" onclick="toggleView([this.parentElement], [document.getElementById(this.parentElement.dataset.targetFloatBtn)])">
         <div class="modalContentsContainer">
             <div class="videoContainer">
                 <video id="myVideo" muted autoplay poster="./imgs/app/no-connection.jpeg"></video>
@@ -35,7 +35,7 @@
             </div>
             <div class="callControls">
                 <canvas id="myWaveform"></canvas>
-                <img class="Button" src="./imgs/app/call-end.svg" alt="End Call" onclick="endCall()">
+                <img src="./imgs/app/call-end.svg" alt="End Call" onclick="endCall()">
                 <canvas id="remoteWaveform" style="transform: rotate(180deg);"></canvas>
             </div>
         </div>

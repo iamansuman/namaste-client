@@ -193,6 +193,7 @@ function appendCall(type='audio', bySender=false, peerID=null, socketID=null, se
 	requestCallElement.style.borderRadius = (bySender) ? '0 0.75rem 0.75rem 0' : '0.75rem 0 0 0.75rem';
 	const div = document.createElement('div');
 	const callImage = document.createElement('img');
+	callImage.classList.add('Button');
 	callImage.src = (type=='video') ? "./imgs/app/video-call.svg" : "./imgs/app/call.svg";
 	div.append(callImage);
 	const callBtn = document.createElement('button');

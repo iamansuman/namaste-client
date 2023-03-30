@@ -64,7 +64,7 @@ socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => 
             const msgNoti = new Notification(senderName, {
                 title: `From ${senderName}`,
                 body: msgBody,
-                icon: './imgs/namaste/namaste-192x192.png',
+                icon: './imgs/app/message.svg',
                 vibrate: [200, 100, 250],
                 renotify: true,
                 tag: 'chat-message',
@@ -81,6 +81,21 @@ socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => 
 socket.on('chat-photo', ({ senderName, type, payload }) => {
     let fileBase64 = LZUTF8.decompress(payload, { inputEncoding: "StorageBinaryString" });
     appendFile('photo', fileBase64, true, senderName);
+    if (document.hidden && Notification.permission === 'granted'){
+        const msgNoti = new Notification(senderName, {
+            title: `From ${senderName}`,
+            body: `📷 Photo`,
+            icon: './imgs/app/gallery.svg',
+            vibrate: [200, 100, 250],
+            renotify: true,
+            tag: 'chat-photo',
+            timestamp: null
+        });
+        msgNoti.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.parent.parent.focus();
+        })
+    }
 });
 
 socket.on('file', ({ type, payload }) => {
@@ -98,18 +113,18 @@ socket.on('call-request', ({ senderName, senderID, peerID, callType, timeStamp }
     if (document.hidden && Notification.permission === 'granted'){
         const msgNoti = new Notification(senderName, {
             title: `From ${senderName}`,
-            body: `${String(callType).replace(/^\w/, char => char.toUpperCase())} Call From ${senderName}\n[Click To attend call]`,
-            icon: './imgs/namaste/namaste-192x192.png',
+            body: `${callType == 'video' ? '🎥' : '📞'} ${String(callType).replace(/^\w/, char => char.toUpperCase())} Call From ${senderName}\n[Click To attend call]`,
+            icon: (callType == 'video') ? './imgs/app/video-call.svg' : './imgs/app/call.svg',
             vibrate: [200, 100, 250],
-            renotify: false,
-            tag: 'chat-message',
+            renotify: true,
+            tag: 'chat-call',
             timestamp: timeStamp
         });
         msgNoti.addEventListener('click', (e) => {
             e.preventDefault();
             window.parent.parent.focus();
             joinCall(callType, remotePeerID, senderID);
-        })
+        });
     }
 });
 

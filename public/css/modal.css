@@ -110,8 +110,8 @@
 .floatingBtn{
     padding: 0.5rem;
     position: absolute;
-    height: 5vmin;
-    width: 5vmin;
+    height: 7.5vmin;
+    width: 7.5vmin;
     background-color: var(--theme-color-light);
     border: 2px solid var(--theme-color-dark);
     border-radius: 5vmin;

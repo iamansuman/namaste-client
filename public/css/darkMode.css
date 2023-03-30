@@ -7,6 +7,14 @@
         color: #ffffff;
         background-color: var(--theme-color-dark);
     }
+    .callRequestElement div button{
+        border: 2.5px solid var(--theme-color-light);
+        color: #000000;
+        background-color: #ffffff;
+    }
+    .callRequestElement div button:hover{
+        background-color: var(--theme-color-light);
+    }
     .Button{ filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(116deg) brightness(109%) contrast(109%) }
     .header{ background-color: #191919 }
     #msg-container{ background-color: #000000ad }
