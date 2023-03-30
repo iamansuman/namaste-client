@@ -1,4 +1,5 @@
 const DOMElements = {
+	contextMenu: document.getElementById("contextMenu"),
 	loginModal: document.getElementById("loginModal"),
 	loginUsername: document.getElementById("login_username"),
 	loginPasscode: document.getElementById("login_passcode"),
@@ -15,20 +16,49 @@ const DOMElements = {
 	remoteWaveform: document.getElementById("remoteWaveform"),
 };
 
-document.addEventListener('contextmenu', (e) => e.preventDefault());
+window.document.addEventListener('click', () => {
+	DOMElements.contextMenu.classList.add('hide');
+});
 
-function openUsersList(){
-	DOMElements.activeUsersListContainer.classList.add('activeUsersListContainer-open');
-}
+DOMElements.messageContainer.addEventListener('scroll', (e) => {
+	DOMElements.contextMenu.classList.add('hide');
+})
 
-function closeUsersList(){
-	DOMElements.activeUsersListContainer.classList.remove('activeUsersListContainer-open');
-}
+window.document.addEventListener('contextmenu', (e) => {
+	e.preventDefault();
+	DOMElements.contextMenu.style.top = `${(e.y + DOMElements.contextMenu.offsetHeight > window.innerHeight) ? window.innerHeight - DOMElements.contextMenu.offsetHeight : e.y}px`;
+	DOMElements.contextMenu.style.left = `${(e.x + DOMElements.contextMenu.offsetWidth > window.innerWidth) ? window.innerWidth - DOMElements.contextMenu.offsetWidth : e.x}px`;
+});
 
-function copyToClipboard() {
+function openUsersList(){ DOMElements.activeUsersListContainer.classList.add('activeUsersListContainer-open') }
+
+function closeUsersList(){ DOMElements.activeUsersListContainer.classList.remove('activeUsersListContainer-open') }
+
+function Share() {
 	const inviteLink = location.href.split('?')[0] + "?pwd=" + user.key;
-    navigator.clipboard.writeText(inviteLink);
-	alert("Link copied!");
+	navigator.share({ url: inviteLink });
+}
+
+function contextMenuBuilder(options=[]){
+	// [{option Title, option Funcion}]
+	DOMElements.contextMenu.innerHTML = null;
+	let closeBtn = document.createElement('div');
+	closeBtn.classList.add('contextMenuElement');
+	closeBtn.innerText = 'Close Menu';
+	closeBtn.addEventListener('click', () => { DOMElements.contextMenu.classList.add('hide') });
+	DOMElements.contextMenu.append(closeBtn);
+	for (i=0; i<options.length; i++) {
+		const option = options[i];
+		if (!(option.Title)) continue;
+		if (!(option.Function)) continue;
+		let optionElement = document.createElement('div');
+		console.log(optionElement);
+		optionElement.classList.add('contextMenuElement');
+		optionElement.innerText = option.Title;
+		optionElement.addEventListener('click', option.Function);
+		DOMElements.contextMenu.append(document.createElement('hr'));
+		DOMElements.contextMenu.append(optionElement);
+	}
 }
 
 function toggleView(toHide=[], toShow=[]){
@@ -107,6 +137,48 @@ function appendMessage(message=null, alignment=0, timeStamp=null){
 	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
 }
 
+function appendFile(type='file', base64String, bySender=false, senderName=null){
+	if (!base64String) return;
+	if (type == 'photo'){
+		const photoElement = document.createElement('div');
+		photoElement.classList.add('photoElement')
+		const pic = document.createElement('img');
+		pic.src = base64String;
+		pic.ondragstart = () => { return false };
+		pic.classList.add('hasContextMenu');
+		if (bySender){
+			const namePlaceHolder = document.createElement('span');
+			namePlaceHolder.innerText = senderName;
+			photoElement.append(namePlaceHolder);
+		}
+		photoElement.style.alignSelf = (bySender) ? 'flex-start' : 'flex-end';
+		photoElement.style.borderRadius = (bySender) ? '0 0.75rem 0.75rem 0' : '0.75rem 0 0 0.75rem';
+		pic.addEventListener('load', () => {
+			// photoElement.style.maxWidth = `${pic.width}px`;
+			if (bySender) photoElement.style.minHeight = `calc(2rem + ${pic.naturalHeight/2}px)`;
+			else photoElement.style.minHeight = `${pic.naturalHeight/2}px`;
+			pic.style.height = `${pic.naturalHeight/2}px`;
+			photoElement.append(pic);
+			DOMElements.messageContainer.append(photoElement);
+			photoElement.scrollIntoView({ behavior: 'smooth' });
+			if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
+		});
+		pic.addEventListener('contextmenu', (e) => {
+			DOMElements.contextMenu.classList.remove('hide');
+			contextMenuBuilder([
+				{
+					Title: 'Download', Function: () => {
+						let a = document.createElement('a');
+						a.href = pic.src;
+						a.download = `${Date.now()}.jpg`;
+						a.click();
+					}
+				}
+			]);
+		});
+	}
+}
+
 function appendCall(type='audio', bySender=false, peerID=null, socketID=null, senderName=null, timeStamp=null){
 	if (peerID == null || socketID == null) return;
 	const requestCallElement = document.createElement('div');
@@ -145,8 +217,7 @@ function passCreds(e, resetFields=true){
 	if (userName && userPass.length >= 8 && socket && peer){
 		user.userName = userName;
 		user.key = userPass;
-		toggleView([DOMElements.loginModal])
-		// DOMElements.loginModal.classList.add('hide');
+		toggleView([DOMElements.loginModal]);
     	socket.connect();
 	} else {
 		alert("Invalid Username or Passcode");

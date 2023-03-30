@@ -78,6 +78,15 @@ socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => 
     } else appendMessage(`${data.name} is trying to send a message but his/her passcode isn't the same as yours`);
 });
 
+socket.on('chat-photo', ({ senderName, type, payload }) => {
+    let fileBase64 = LZUTF8.decompress(payload, { inputEncoding: "StorageBinaryString" });
+    appendFile('photo', fileBase64, true, senderName);
+});
+
+socket.on('file', ({ type, payload }) => {
+    console.log(type, payload);
+});
+
 socket.on('usersList', (users) => {
 	allUsers = users;
 	listUsers(allUsers);
@@ -92,7 +101,7 @@ socket.on('call-request', ({ senderName, senderID, peerID, callType, timeStamp }
             body: `${String(callType).replace(/^\w/, char => char.toUpperCase())} Call From ${senderName}\n[Click To attend call]`,
             icon: './imgs/namaste/namaste-192x192.png',
             vibrate: [200, 100, 250],
-            renotify: true,
+            renotify: false,
             tag: 'chat-message',
             timestamp: timeStamp
         });
@@ -129,6 +138,21 @@ function sendCallRequest(type='audio'){
     const myPeerID = encrypt(user.peerID, user.key);
 	socket.emit('send-call-request', { peerID: myPeerID, callType: type, timeStamp: Date.now() });
     appendCall(type, false, user.peerID, socket.id, user.userName, Date.now());
+}
+
+function sendPhotos(files=null){
+    if (files==null) return;
+    for(i=0; i<files.length; i++){
+        const file = files.item(i);
+        if (!String(file.type).startsWith('image') || file.size > 1e7) continue;  //maxHttpBufferSize: 1e7 (in server)
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+            appendFile('photo', reader.result, false);
+            let compressedFile = LZUTF8.compress(reader.result, { outputEncoding: "StorageBinaryString" });
+            socket.emit('send-file', { type: 'chat-photo', payload: compressedFile });
+        }
+    }
 }
 
 function joinCall(type='audio', peerID=null, socketID=null){
