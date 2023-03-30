@@ -15,6 +15,27 @@
     --theme-color-light: #eba5ff;
     --theme-color-dark: #6c1d82;
     --background-image: url('./../imgs/bg-raimond-klavins-Ql6JhGdbQg0-unsplash.jpg');
+    
+}
+
+.hide{ display: none !important }
+
+.contextMenu{
+    position: absolute;
+    font-size: 1.5rem;
+    border-radius: 7.5px;
+    background-color: #ffffff;
+    z-index: 5;
+}
+
+.contextMenu .contextMenuElement{
+    padding: 0.5rem;
+    min-height: 2rem;
+    cursor: pointer;
+}
+
+.contextMenu .contextMenuElement:hover{
+    background-color: #00000055;
 }
 
 .namasteTextLogo{
@@ -91,6 +112,8 @@
     text-align: left;
 }
 
+#activeUsers th{ color: #000000 }
+
 #activeUsers th, #activeUsers td{
     vertical-align: text-top;
     padding: 0.5rem 1rem;
@@ -123,7 +146,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #fff;
+    background-color: #ffffff;
 }
 
 .header img{
@@ -149,7 +172,7 @@
     overflow-y: scroll;
 }
 #msg-container::-webkit-scrollbar { width: 15px }
-#msg-container::-webkit-scrollbar-track { background-color: #fff }
+#msg-container::-webkit-scrollbar-track { background-color: #ffffff }
 #msg-container::-webkit-scrollbar-thumb {
     background: var(--theme-color);
     cursor: pointer;
@@ -167,7 +190,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #fff;
+    background-color: #ffffff;
 }
 
 #txt-msg-box{
@@ -200,7 +223,7 @@
     cursor: not-allowed;
 }
 
-.messageElement, .callRequestElement, .screenShareRequestElement{
+.messageElement, .callRequestElement, .photoElement{
     display: flex;
     margin-bottom: 10px;
     padding: 10px 15px;
@@ -250,4 +273,10 @@
     background-color: #575757;
     opacity: 0.75;
     color: #ffffff;
+}
+
+.photoElement img{
+    width: fit-content;
+    object-fit: contain;
+    border-radius: 0.5rem;
 }

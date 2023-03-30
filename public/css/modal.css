@@ -16,11 +16,7 @@
     height: 2.5em;
     width: 2.5em;
     cursor: pointer;
-    z-index: 10;
-}
-
-.hide{
-    display: none !important;
+    z-index: 3;
 }
 
 .modalContentsContainer{
@@ -63,12 +59,14 @@
     outline: none;
     border: none;
     width: 70%;
+    color: #000000;
 }
 
 .modalContentsContainer form input[type='submit']{
     width: 50%;
     cursor: pointer;
     transition: 500ms ease;
+    font-size: larger;
 }
 
 .modalContentsContainer form input[type='submit']:hover{
@@ -126,3 +124,5 @@
     0% { opacity: 0.65 }
     100% { opacity: 1 }
 }
+
+@media (prefers-color-scheme: dark) { .modalContentsContainer video{ border: 1px solid #000000 } }
