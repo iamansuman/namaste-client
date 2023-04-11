@@ -124,6 +124,11 @@ function listUsers(users=allUsers, clearTable=false){
 
 function appendMessage(message=null, alignment=0, timeStamp=null){
 	if (message==null) return;
+	function isValidURL(string) {
+		try { new URL(string); return true }
+		catch (err) { return false }
+	}
+	const sentences = String(message).split(' ');
     //0-> System Notifications; 1-> Sender; 2-> Sender
     const alignmentOptions = ['center', 'flex-start', 'flex-end'];
     const borderRadiusOptions = ['1rem', '0 1rem 1rem 0', '1rem 0 0 1rem'];
@@ -131,7 +136,19 @@ function appendMessage(message=null, alignment=0, timeStamp=null){
     messageElement.classList.add('messageElement');
 	messageElement.style.alignSelf = alignmentOptions[alignment];
 	messageElement.style.borderRadius = borderRadiusOptions[alignment];
-	messageElement.innerText = message;
+	const paragraph = document.createElement('p');
+	sentences.forEach((sentence) => {
+		paragraph.append(String(" "));
+		if (isValidURL(sentence)){
+			let textLink = document.createElement('a');
+			textLink.innerText = sentence;
+			textLink.href = new URL(sentence).href;
+			textLink.target = '_blank';
+			textLink.rel = 'noreferrer noopener';
+			paragraph.append(textLink);
+		} else paragraph.append(sentence);
+	});
+	messageElement.append(paragraph);
 	DOMElements.messageContainer.append(messageElement);
 	messageElement.scrollIntoView({ behavior: 'smooth' });
 	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;

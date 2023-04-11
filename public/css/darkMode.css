@@ -3,6 +3,9 @@
     .contextMenu{
         background-color: #1f1f1f;
     }
+    a{
+        color: #aaaaff;
+    }
     .messageElement, .callRequestElement, .photoElement {
         color: #ffffff;
         background-color: var(--theme-color-dark);

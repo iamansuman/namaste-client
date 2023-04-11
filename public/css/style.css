@@ -14,8 +14,11 @@
     --theme-color: #d544fc;
     --theme-color-light: #eba5ff;
     --theme-color-dark: #6c1d82;
-    --background-image: url('./../imgs/bg-raimond-klavins-Ql6JhGdbQg0-unsplash.jpg');
-    
+    --background-image: url('./../imgs/backgrounds/bg-raimond-klavins-Ql6JhGdbQg0-unsplash.jpg');
+}
+
+a{
+    color: #0000ff;
 }
 
 .hide{ display: none !important }
