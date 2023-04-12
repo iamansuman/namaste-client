@@ -169,8 +169,8 @@ a{
     padding-top: 15px;
     width: calc(100% - 20px);
     flex: 1;
-    display: flex;
-    flex-direction: column;
+    /* display: flex; */
+    /* flex-direction: column; */
     background-color: #ffffffad;
     overflow-y: scroll;
 }
@@ -227,20 +227,38 @@ a{
 }
 
 .messageElement, .callRequestElement, .photoElement{
-    display: flex;
+    /* display: flex; */
+    /* flex-direction: column; */
+    position: relative;
     margin-bottom: 10px;
     padding: 10px 15px;
     font-size: x-large;
     background-color: var(--theme-color-light);
     min-height: 2rem;
     max-width: 69%;
+    width: fit-content;
+    width: -moz-fit-content;
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
     -webkit-user-select: text;
     user-select: text;
-    flex-direction: column;
     box-sizing: content-box;
+}
+
+.messageElement span{
+    color: var(--theme-color-dark);
+    cursor: pointer;
+}
+
+.messageElement hr{
+    border-color: #000000;
+}
+
+.messageElement p{
+    white-space: break-spaces;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .messageElement::-webkit-scrollbar { height: 3.5px }

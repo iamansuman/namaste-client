@@ -10,6 +10,12 @@
         color: #ffffff;
         background-color: var(--theme-color-dark);
     }
+    .messageElement span{
+        color: var(--theme-color-light);
+    }
+    .messageElement hr{
+        border-color: #ffffff;
+    }
     .callRequestElement div button{
         border: 2.5px solid var(--theme-color-light);
         color: #000000;

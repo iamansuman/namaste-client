@@ -122,7 +122,8 @@ function listUsers(users=allUsers, clearTable=false){
 	});
 }
 
-function appendMessage(message=null, alignment=0, timeStamp=null){
+function appendMessage(message=null, options={ alignment:0, username:null, timeStamp:null }){
+	console.log(options.alignment, options.username, options.timeStamp);
 	if (message==null) return;
 	function isValidURL(string) {
 		try { new URL(string); return true }
@@ -130,15 +131,25 @@ function appendMessage(message=null, alignment=0, timeStamp=null){
 	}
 	const sentences = String(message).split(' ');
     //0-> System Notifications; 1-> Sender; 2-> Sender
-    const alignmentOptions = ['center', 'flex-start', 'flex-end'];
+    const alignmentOptions = [['50%', 'translateX(-50%)'], ['0%', 'translateX(0%)'], ['100%', 'translateX(-100%)']];
     const borderRadiusOptions = ['1rem', '0 1rem 1rem 0', '1rem 0 0 1rem'];
+    // const alignmentOptions = ['center', 'flex-start', 'flex-end'];
 	const messageElement = document.createElement('div');
     messageElement.classList.add('messageElement');
-	messageElement.style.alignSelf = alignmentOptions[alignment];
-	messageElement.style.borderRadius = borderRadiusOptions[alignment];
+	// messageElement.style.alignSelf = alignmentOptions[options.alignment];
+	messageElement.style.left = alignmentOptions[options.alignment][0];
+	messageElement.style.transform = alignmentOptions[options.alignment][1];
+	messageElement.style.borderRadius = borderRadiusOptions[options.alignment];
+	if (options.username != null){
+		const nameStamp = document.createElement('span');
+		nameStamp.innerText = options.username;
+		messageElement.append(nameStamp);
+		const separator = document.createElement('hr');
+		messageElement.append(separator);
+	}
 	const paragraph = document.createElement('p');
-	sentences.forEach((sentence) => {
-		paragraph.append(String(" "));
+	sentences.forEach((sentence, sentenceIndex) => {
+		if (sentenceIndex != 0) paragraph.append(String(" "));
 		if (isValidURL(sentence)){
 			let textLink = document.createElement('a');
 			textLink.innerText = sentence;
@@ -168,7 +179,8 @@ function appendFile(type='file', base64String, bySender=false, senderName=null){
 			namePlaceHolder.innerText = senderName;
 			photoElement.append(namePlaceHolder);
 		}
-		photoElement.style.alignSelf = (bySender) ? 'flex-start' : 'flex-end';
+		photoElement.style.left = (bySender) ? '0%' : '100%';
+		photoElement.style.transform = (bySender) ? 'translateX(-0%)' : 'translateX(-100%)';
 		photoElement.style.borderRadius = (bySender) ? '0 0.75rem 0.75rem 0' : '0.75rem 0 0 0.75rem';
 		pic.addEventListener('load', () => {
 			// photoElement.style.maxWidth = `${pic.width}px`;
@@ -206,7 +218,8 @@ function appendCall(type='audio', bySender=false, peerID=null, socketID=null, se
 		requestCallElement.append(namePlaceHolder);
 		requestCallElement.style.minHeight = `${5+2}rem`;
 	} else requestCallElement.style.minHeight = `${5}rem`;
-	requestCallElement.style.alignSelf = (bySender) ? 'flex-start' : 'flex-end';
+	requestCallElement.style.left = (bySender) ? '0%' : '100%';
+	requestCallElement.style.transform = (bySender) ? 'translateX(-0%)' : 'translateX(-100%)';
 	requestCallElement.style.borderRadius = (bySender) ? '0 0.75rem 0.75rem 0' : '0.75rem 0 0 0.75rem';
 	const div = document.createElement('div');
 	const callImage = document.createElement('img');

@@ -59,7 +59,11 @@ socket.on('user-disconnected', (disconnectedUser) => {
 socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => {
 	const msgBody = decrypt(messageBody, user.key);
 	if (msgBody != "" || msgBody != null || msgBody != undefined){
-        appendMessage(`${senderName}: ${msgBody}`, 1);
+        appendMessage(msgBody, {
+            alignment: 1,
+            username: senderName,
+            timeStamp: timeStamp
+        });
         if (document.hidden && Notification.permission === 'granted'){
             const msgNoti = new Notification(senderName, {
                 title: `From ${senderName}`,
@@ -141,8 +145,12 @@ function sendMessage(e){
     e.preventDefault();
 	const message = encrypt(e.target.elements.txtMsgBox.value, user.key);
 	if (message != "" || message != null || message != undefined) {
-		appendMessage(e.target.elements.txtMsgBox.value, 2);
-		socket.emit('send-chat-message', { messageBody: message, timeStamp: Date.now() });
+        let timeStamp = Date.now();
+		appendMessage(e.target.elements.txtMsgBox.value, {
+            alignment: 2,
+            timeStamp: timeStamp
+        });
+		socket.emit('send-chat-message', { messageBody: message, timeStamp: timeStamp });
 		e.target.elements.txtMsgBox.value = '';
 	}
 	e.target.elements.txtMsgBox.focus();
