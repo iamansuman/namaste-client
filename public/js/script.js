@@ -62,6 +62,7 @@ socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => 
         appendMessage(msgBody, {
             alignment: 1,
             username: senderName,
+            userId: senderID,
             timeStamp: timeStamp
         });
         if (document.hidden && Notification.permission === 'granted'){

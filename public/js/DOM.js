@@ -122,8 +122,7 @@ function listUsers(users=allUsers, clearTable=false){
 	});
 }
 
-function appendMessage(message=null, options={ alignment:0, username:null, timeStamp:null }){
-	console.log(options.alignment, options.username, options.timeStamp);
+function appendMessage(message=null, options={ alignment:0, username:null, userId:null, timeStamp:null }){
 	if (message==null) return;
 	function isValidURL(string) {
 		try { new URL(string); return true }
@@ -140,7 +139,7 @@ function appendMessage(message=null, options={ alignment:0, username:null, timeS
 	messageElement.style.left = alignmentOptions[options.alignment][0];
 	messageElement.style.transform = alignmentOptions[options.alignment][1];
 	messageElement.style.borderRadius = borderRadiusOptions[options.alignment];
-	if (options.username != null){
+	if (options.username != null && DOMElements.messageContainer.dataset.lastMessageBy != options.userId){
 		const nameStamp = document.createElement('span');
 		nameStamp.innerText = options.username;
 		messageElement.append(nameStamp);
@@ -161,6 +160,7 @@ function appendMessage(message=null, options={ alignment:0, username:null, timeS
 	});
 	messageElement.append(paragraph);
 	DOMElements.messageContainer.append(messageElement);
+	DOMElements.messageContainer.dataset.lastMessageBy = options.userId;
 	messageElement.scrollIntoView({ behavior: 'smooth' });
 	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
 }
