@@ -59,11 +59,20 @@
         </table>
     </div>
 
+    <div id="settingsContainer">
+        <div class="toprow">
+            <img class="Button rotateOnHover" src="./imgs/app/settings.svg" alt="Settings">
+            <h1>Settings</h1>
+            <img src="./imgs/app/close.svg" alt="Close" title="Close Users List" onclick="closeSettings()">
+        </div>
+        
+    </div>
+
     <div class="mainview">
         <div class="header">
             <img class="Button" src="./imgs/app/users.svg" alt="Users List" title="Open Users List" onclick="openUsersList()">
             <h1 class="namasteTextLogo" title="Namaste" style="position: absolute; left: 50%; transform: translateX(-50%);">Namaste</h1>
-            <img class="Button rotateOnHover" src="./imgs/app/settings.svg" alt="Settings" title="Settings">
+            <img class="Button rotateOnHover" src="./imgs/app/settings.svg" alt="Settings" title="Settings" onclick="openSettings()">
         </div>
         <div id="msg-container"></div>
         <form id="send-container" onsubmit="sendMessage(event)">

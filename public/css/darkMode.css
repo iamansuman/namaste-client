@@ -10,7 +10,7 @@
         color: #ffffff;
         background-color: var(--theme-color-dark);
     }
-    .messageElement span{
+    .messageElement span, .callRequestElement span, .photoElement span{
         color: var(--theme-color-light);
     }
     .messageElement hr{

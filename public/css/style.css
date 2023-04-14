@@ -12,14 +12,12 @@
     -webkit-user-select: none;
     user-select: none;
     --theme-color: #d544fc;
-    --theme-color-light: #eba5ff;
+    --theme-color-light: #ffb0f7;
     --theme-color-dark: #6c1d82;
     --background-image: url('./../imgs/backgrounds/bg-raimond-klavins-Ql6JhGdbQg0-unsplash.jpg');
 }
 
-a{
-    color: #0000ff;
-}
+a{ color: #0000ff }
 
 .hide{ display: none !important }
 
@@ -52,11 +50,11 @@ a{
     left: -100vw;
     bottom: 0;
     top: 0;
-    width: 80vw;
+    width: 90vw;
     overflow-y: scroll;
     color: #ffffff;
     background-color: #000000f0;
-    transition: 750ms cubic-bezier(0.39, 0.58, 0.57, 1);
+    transition: 500ms cubic-bezier(0.39, 0.58, 0.57, 1);
     z-index: 1;
 }
 .activeUsersListContainer-open{ left: 0 !important }
@@ -126,6 +124,45 @@ a{
     border-bottom: 1px solid #afafaf;
 }
 
+#settingsContainer{
+    position: absolute;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+    left: -100vw;
+    overflow-y: scroll;
+    color: #ffffff;
+    background-color: #000000;
+    transition: 500ms cubic-bezier(0.39, 0.58, 0.57, 1);
+    z-index: 1;
+}
+.settingsContainer-open{ left: 0 !important }
+
+#settingsContainer .toprow{
+    margin: 1em;
+    height: 5vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+#settingsContainer .toprow img{
+    height: 4.5vh;
+    cursor: pointer;
+    aspect-ratio: 1/1;
+}
+#settingsContainer .toprow h1{ font-size: xx-large }
+
+#settingsContainer::-webkit-scrollbar { width: 15px }
+#settingsContainer::-webkit-scrollbar-track { background-color: #00000000 }
+#settingsContainer::-webkit-scrollbar-thumb {
+    background: var(--theme-color);
+    cursor: pointer;
+}
+#settingsContainer::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-color-dark);
+    cursor: pointer;
+}
 
 .mainview{
     position: fixed;
@@ -246,14 +283,13 @@ a{
     box-sizing: content-box;
 }
 
-.messageElement span{
+.messageElement span, .callRequestElement span, .photoElement span{
     color: var(--theme-color-dark);
     cursor: pointer;
 }
 
-.messageElement hr{
-    border-color: #000000;
-}
+.messageElement hr{ border-color: #000000 }
+.photoElement hr { border-color: #00000000 }
 
 .messageElement p{
     white-space: break-spaces;

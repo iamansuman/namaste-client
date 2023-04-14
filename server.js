@@ -39,7 +39,7 @@ io.on('connection', socket => {
 	socket.on('send-file', ({ type, payload }) => {
 		const user = findUser(socket.id);
 		if (user){
-			if (type == 'chat-photo') socket.broadcast.emit('chat-photo', { senderName: user.name, type: 'photo', payload });
+			if (type == 'chat-photo') socket.broadcast.emit('chat-photo', { senderName: user.name, senderID: socket.id, type: 'photo', payload });
 			else socket.broadcast.emit('file', { type, payload });
 		}
 	});

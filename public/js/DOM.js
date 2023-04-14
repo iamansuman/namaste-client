@@ -6,6 +6,7 @@ const DOMElements = {
 	loginButton: document.getElementById("login_btn"),
 	messageContainer: document.getElementById("msg-container"),
 	activeUsersListContainer: document.getElementById("activeUsersListContainer"),
+	settingsContainer: document.getElementById("settingsContainer"),
 	sendButton: document.getElementById("send-btn"),
 	activeUserList: document.getElementById("activeUsers"),
 	videoCallModal: document.getElementById("videoCallModal"),
@@ -16,28 +17,14 @@ const DOMElements = {
 	remoteWaveform: document.getElementById("remoteWaveform"),
 };
 
-window.document.addEventListener('click', () => {
-	DOMElements.contextMenu.classList.add('hide');
-});
-
-DOMElements.messageContainer.addEventListener('scroll', (e) => {
-	DOMElements.contextMenu.classList.add('hide');
-})
-
-window.document.addEventListener('contextmenu', (e) => {
-	e.preventDefault();
-	DOMElements.contextMenu.style.top = `${(e.y + DOMElements.contextMenu.offsetHeight > window.innerHeight) ? window.innerHeight - DOMElements.contextMenu.offsetHeight : e.y}px`;
-	DOMElements.contextMenu.style.left = `${(e.x + DOMElements.contextMenu.offsetWidth > window.innerWidth) ? window.innerWidth - DOMElements.contextMenu.offsetWidth : e.x}px`;
-});
 
 function openUsersList(){ DOMElements.activeUsersListContainer.classList.add('activeUsersListContainer-open') }
-
 function closeUsersList(){ DOMElements.activeUsersListContainer.classList.remove('activeUsersListContainer-open') }
 
-function Share() {
-	const inviteLink = location.href.split('?')[0] + "?pwd=" + user.key;
-	navigator.share({ url: inviteLink });
-}
+function openSettings(){ DOMElements.settingsContainer.classList.add('settingsContainer-open') }
+function closeSettings(){ DOMElements.settingsContainer.classList.remove('settingsContainer-open') }
+
+function Share() { navigator.share({ url: location.href.split('?')[0] + "?pwd=" + user.key }) }
 
 function contextMenuBuilder(options=[]){
 	// [{option Title, option Funcion}]
@@ -132,16 +119,15 @@ function appendMessage(message=null, options={ alignment:0, username:null, userI
     //0-> System Notifications; 1-> Sender; 2-> Sender
     const alignmentOptions = [['50%', 'translateX(-50%)'], ['0%', 'translateX(0%)'], ['100%', 'translateX(-100%)']];
     const borderRadiusOptions = ['1rem', '0 1rem 1rem 0', '1rem 0 0 1rem'];
-    // const alignmentOptions = ['center', 'flex-start', 'flex-end'];
 	const messageElement = document.createElement('div');
     messageElement.classList.add('messageElement');
-	// messageElement.style.alignSelf = alignmentOptions[options.alignment];
 	messageElement.style.left = alignmentOptions[options.alignment][0];
 	messageElement.style.transform = alignmentOptions[options.alignment][1];
 	messageElement.style.borderRadius = borderRadiusOptions[options.alignment];
 	if (options.username != null && DOMElements.messageContainer.dataset.lastMessageBy != options.userId){
 		const nameStamp = document.createElement('span');
 		nameStamp.innerText = options.username;
+		nameStamp.title = options.userId;
 		messageElement.append(nameStamp);
 		const separator = document.createElement('hr');
 		messageElement.append(separator);
@@ -165,7 +151,7 @@ function appendMessage(message=null, options={ alignment:0, username:null, userI
 	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
 }
 
-function appendFile(type='file', base64String, bySender=false, senderName=null){
+function appendFile(type='file', base64String, bySender=false, senderName=null, senderID=null){
 	if (!base64String) return;
 	if (type == 'photo'){
 		const photoElement = document.createElement('div');
@@ -174,21 +160,24 @@ function appendFile(type='file', base64String, bySender=false, senderName=null){
 		pic.src = base64String;
 		pic.ondragstart = () => { return false };
 		pic.classList.add('hasContextMenu');
-		if (bySender){
+		if (bySender && DOMElements.messageContainer.dataset.lastMessageBy != senderID){
 			const namePlaceHolder = document.createElement('span');
 			namePlaceHolder.innerText = senderName;
+			namePlaceHolder.title = senderID;
 			photoElement.append(namePlaceHolder);
+			const separator = document.createElement('hr');
+			photoElement.append(separator);
 		}
 		photoElement.style.left = (bySender) ? '0%' : '100%';
 		photoElement.style.transform = (bySender) ? 'translateX(-0%)' : 'translateX(-100%)';
 		photoElement.style.borderRadius = (bySender) ? '0 0.75rem 0.75rem 0' : '0.75rem 0 0 0.75rem';
 		pic.addEventListener('load', () => {
-			// photoElement.style.maxWidth = `${pic.width}px`;
 			if (bySender) photoElement.style.minHeight = `calc(2rem + ${pic.naturalHeight/2}px)`;
 			else photoElement.style.minHeight = `${pic.naturalHeight/2}px`;
 			pic.style.height = `${pic.naturalHeight/2}px`;
 			photoElement.append(pic);
 			DOMElements.messageContainer.append(photoElement);
+			DOMElements.messageContainer.dataset.lastMessageBy = senderID;
 			photoElement.scrollIntoView({ behavior: 'smooth' });
 			if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
 		});
@@ -215,6 +204,7 @@ function appendCall(type='audio', bySender=false, peerID=null, socketID=null, se
 	if (bySender){
 		const namePlaceHolder = document.createElement('span');
 		namePlaceHolder.innerText = senderName;
+		namePlaceHolder.title = socketID;
 		requestCallElement.append(namePlaceHolder);
 		requestCallElement.style.minHeight = `${5+2}rem`;
 	} else requestCallElement.style.minHeight = `${5}rem`;
@@ -236,6 +226,7 @@ function appendCall(type='audio', bySender=false, peerID=null, socketID=null, se
 	div.append(callBtn);
 	requestCallElement.append(div);
 	DOMElements.messageContainer.append(requestCallElement);
+	DOMElements.messageContainer.dataset.lastMessageBy = socketID;
 	requestCallElement.scrollIntoView({ behavior: 'smooth' });
 	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
 }
@@ -259,6 +250,21 @@ function passCreds(e, resetFields=true){
 		}
 	}
 }
+
+//EventListeners
+window.document.addEventListener('click', () => {
+	DOMElements.contextMenu.classList.add('hide');
+});
+
+DOMElements.messageContainer.addEventListener('scroll', (e) => {
+	DOMElements.contextMenu.classList.add('hide');
+});
+
+window.document.addEventListener('contextmenu', (e) => {
+	e.preventDefault();
+	DOMElements.contextMenu.style.top = `${(e.y + DOMElements.contextMenu.offsetHeight > window.innerHeight) ? window.innerHeight - DOMElements.contextMenu.offsetHeight : e.y}px`;
+	DOMElements.contextMenu.style.left = `${(e.x + DOMElements.contextMenu.offsetWidth > window.innerWidth) ? window.innerWidth - DOMElements.contextMenu.offsetWidth : e.x}px`;
+});
 
 //Execution
 toggleView([DOMElements.videoCallModal, DOMElements.videoCallModalFloatBtn], [DOMElements.loginModal]);

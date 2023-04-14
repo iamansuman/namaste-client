@@ -83,9 +83,9 @@ socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => 
     } else appendMessage(`${data.name} is trying to send a message but his/her passcode isn't the same as yours`);
 });
 
-socket.on('chat-photo', ({ senderName, type, payload }) => {
+socket.on('chat-photo', ({ senderName, senderID, type, payload }) => {
     let fileBase64 = LZUTF8.decompress(payload, { inputEncoding: "StorageBinaryString" });
-    appendFile('photo', fileBase64, true, senderName);
+    appendFile('photo', fileBase64, true, senderName, senderID);
     if (document.hidden && Notification.permission === 'granted'){
         const msgNoti = new Notification(senderName, {
             title: `From ${senderName}`,
