@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "devStart": "nodemon -r dotenv/config server.js"
+    "dev": "nodemon -r dotenv/config server.js"
   },
   "author": "Ansuman Dhar",
   "license": "ISC",
