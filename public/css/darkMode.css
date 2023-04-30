@@ -1,16 +1,12 @@
 @media (prefers-color-scheme: dark) {
     *{ color: #ffffff }
-    .contextMenu{
-        background-color: #1f1f1f;
-    }
-    a{
-        color: #aaaaff;
-    }
-    .messageElement, .callRequestElement, .photoElement {
+    .contextMenu{ background-color: #1f1f1f }
+    a{ color: #aaaaff }
+    #toastNotification, .messageElement, .callRequestElement, .photoElement, .videoElement, .fileElement{
         color: #ffffff;
         background-color: var(--theme-color-dark);
     }
-    .messageElement span, .callRequestElement span, .photoElement span{
+    .messageElement span, .callRequestElement span, .photoElement span,  .videoElement span, .fileElement span{
         color: var(--theme-color-light);
     }
     .messageElement hr{

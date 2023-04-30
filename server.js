@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {
-	maxHttpBufferSize: 1e7,	//10MB
+	maxHttpBufferSize: 5e7,	//50MB
 	connectionStateRecovery: {
 		maxDisconnectionDuration: 2 * 60 * 1000,
 		skipMiddlewares: true,
@@ -36,11 +36,11 @@ io.on('connection', socket => {
 		const user = findUser(socket.id);
 		if (user) socket.broadcast.emit('chat-message', { senderName: user.name, senderID: socket.id, messageBody, timeStamp });
 	});
-	socket.on('send-file', ({ type, payload }) => {
+	socket.on('send-file', async ({ appendType, fileType, fileName, payload, timeStamp }) => {
 		const user = findUser(socket.id);
 		if (user){
-			if (type == 'chat-photo') socket.broadcast.emit('chat-photo', { senderName: user.name, senderID: socket.id, type: 'photo', payload });
-			else socket.broadcast.emit('file', { type, payload });
+			if (appendType == 'inlineMedia') await socket.broadcast.emit('inline-media', { senderName: user.name, senderID: socket.id, fileType, payload, timeStamp });
+			else await socket.broadcast.emit('file', { senderName: user.name, senderID: socket.id, fileType, fileName, payload, timeStamp });
 		}
 	});
 	socket.on('send-call-request', ({ peerID, callType, timeStamp }) => {

@@ -1,6 +1,11 @@
 const socket = io({ autoConnect: false });
 const peer = new Peer();
 const user = { userName: null, key: null, peerID: null, currentCall: null, currentCallRemoteSocketID: null };
+const SETTINGS = {
+	keepLoginInfo: localStorage.getItem('keepLoginInfo')
+};
+const ChatDB = new Localbase('Chats');
+ChatDB.config.debug = false;
 let allUsers = []; //<- Not necessary, good to keep
 
 const usp = new URLSearchParams(document.location.href.split('?')[1]);
@@ -28,7 +33,6 @@ peer.on('call', (ring) => {
         DOMElements.myVideo.srcObject = stream;
         WaveformLocal.draw(stream, DOMElements.myWaveform);
         toggleView([], [DOMElements.videoCallModal]);
-        // DOMElements.videoCallModal.classList.remove('hide');
         ring.answer(stream);
         ring.on('stream', (remoteStream) => {
             DOMElements.remoteVideo.srcObject = remoteStream;
@@ -56,8 +60,8 @@ socket.on('user-disconnected', (disconnectedUser) => {
     if (user.currentCallRemoteSocketID == disconnectedUser.id) endCall(true);
 });
 
-socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => {
-	const msgBody = decrypt(messageBody, user.key);
+socket.on('chat-message', async ({ senderName, senderID, messageBody, timeStamp }) => {
+	const msgBody = await decrypt(messageBody, user.key);
 	if (msgBody != "" || msgBody != null || msgBody != undefined){
         appendMessage(msgBody, {
             alignment: 1,
@@ -81,30 +85,80 @@ socket.on('chat-message', ({ senderName, senderID, messageBody, timeStamp }) => 
             });
         }
     } else appendMessage(`${data.name} is trying to send a message but his/her passcode isn't the same as yours`);
+
+    ChatDB.collection(`${socket.id}...${user.peerID}`).add({ senderName, senderID, messageBody, timeStamp, key: await encrypt(user.key, messageBody) }, String(timeStamp));
 });
 
-socket.on('chat-photo', ({ senderName, senderID, type, payload }) => {
-    let fileBase64 = LZUTF8.decompress(payload, { inputEncoding: "StorageBinaryString" });
-    appendFile('photo', fileBase64, true, senderName, senderID);
-    if (document.hidden && Notification.permission === 'granted'){
-        const msgNoti = new Notification(senderName, {
-            title: `From ${senderName}`,
-            body: `📷 Photo`,
-            icon: './imgs/app/gallery.svg',
-            vibrate: [200, 100, 250],
-            renotify: true,
-            tag: 'chat-photo',
-            timestamp: null
-        });
-        msgNoti.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.parent.parent.focus();
-        })
+socket.on('inline-media', async ({ senderName, senderID, fileType, payload, timeStamp }) => {
+    const CryptoWorker = new Worker('./js/Encryption/Workers/sec-v1.2-Worker.js');
+    let workerData = {
+        decrypt: true,
+        key: user.key,
+        payload,
+        ioEncoding: 'ByteArray'
+    }
+    CryptoWorker.postMessage(workerData);
+    CryptoWorker.onerror = CryptoWorker.onmessageerror = (e) => {
+        console.error(e.data);
+        CryptoWorker.terminate();
+    }
+    CryptoWorker.onmessage = (e) => {
+        appendMedia(fileType, e.data, true, senderName, senderID);
+        if (document.hidden && Notification.permission === 'granted'){
+            const NotificationBody = {
+                "image": "📷 Photo",
+                "video": "📽 Video",
+                "audio": "🎙 Audio"
+            }
+            const msgNoti = new Notification(senderName, {
+                title: `From ${senderName}`,
+                body: NotificationBody[String(fileType).split('/')[0]],
+                icon: './imgs/app/gallery.svg',
+                vibrate: [200, 100, 250],
+                renotify: true,
+                tag: 'chat-media',
+                timestamp: timeStamp
+            });
+            msgNoti.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.parent.parent.focus();
+            });
+        }
     }
 });
 
-socket.on('file', ({ type, payload }) => {
-    console.log(type, payload);
+socket.on('file', async ({ senderName, senderID, fileType, fileName, payload, timeStamp }) => {
+    const CryptoWorker = new Worker('./js/Encryption/Workers/sec-v1.2-Worker.js');
+    let workerData = {
+        decrypt: true,
+        key: user.key,
+        payload,
+        ioEncoding: 'ByteArray'
+    }
+    CryptoWorker.postMessage(workerData);
+    CryptoWorker.onerror = CryptoWorker.onmessageerror = (e) => {
+        console.error(e.data);
+        CryptoWorker.terminate();
+    }
+    CryptoWorker.onmessage = (e) => {
+        appendFile(fileType, fileName, e.data, true, senderName, senderID);
+        if (document.hidden && Notification.permission === 'granted'){
+            const msgNoti = new Notification(senderName, {
+                title: `From ${senderName}`,
+                body: '📃 File',
+                icon: './imgs/app/file.svg',
+                vibrate: [200, 100, 250],
+                renotify: true,
+                tag: 'chat-file',
+                timestamp: timeStamp
+            });
+            msgNoti.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.parent.parent.focus();
+            });
+        }
+        CryptoWorker.terminate();
+    }
 });
 
 socket.on('usersList', (users) => {
@@ -112,8 +166,8 @@ socket.on('usersList', (users) => {
 	listUsers(allUsers);
 });
 
-socket.on('call-request', ({ senderName, senderID, peerID, callType, timeStamp }) => {
-    const remotePeerID = decrypt(peerID, user.key);
+socket.on('call-request', async ({ senderName, senderID, peerID, callType, timeStamp }) => {
+    const remotePeerID = await decrypt(peerID, user.key);
     appendCall(callType, true, remotePeerID, senderID, senderName, timeStamp);
     if (document.hidden && Notification.permission === 'granted'){
         const msgNoti = new Notification(senderName, {
@@ -142,9 +196,9 @@ socket.on('disconnect', () => {
 	appendMessage("Attempting to reconnect... 🔌");
 });
 
-function sendMessage(e){
+async function sendMessage(e){
     e.preventDefault();
-	const message = encrypt(e.target.elements.txtMsgBox.value, user.key);
+	const message = await encrypt(e.target.elements.txtMsgBox.value, user.key);
 	if (message != "" || message != null || message != undefined) {
         let timeStamp = Date.now();
 		appendMessage(e.target.elements.txtMsgBox.value, {
@@ -152,31 +206,80 @@ function sendMessage(e){
             timeStamp: timeStamp
         });
 		socket.emit('send-chat-message', { messageBody: message, timeStamp: timeStamp });
+        ChatDB.collection(`${socket.id}...${user.peerID}`).add({ senderName: user.userName, senderID: socket.id, messageBody: message, timeStamp, key: await encrypt(user.key, message) }, String(timeStamp));
 		e.target.elements.txtMsgBox.value = '';
 	}
 	e.target.elements.txtMsgBox.focus();
 }
 
-function sendCallRequest(type='audio'){
-    if (user.peerID == null) return;
-    const myPeerID = encrypt(user.peerID, user.key);
-	socket.emit('send-call-request', { peerID: myPeerID, callType: type, timeStamp: Date.now() });
-    appendCall(type, false, user.peerID, socket.id, user.userName, Date.now());
-}
-
-function sendPhotos(files=null){
+function sendImagesVideos(files=null){
     if (files==null) return;
     for(i=0; i<files.length; i++){
         const file = files.item(i);
-        if (!String(file.type).startsWith('image') || file.size > 1e7) continue;  //maxHttpBufferSize: 1e7 (in server)
+        const fileType = file.type.split('/')[0];
+        if (file.size > 1e7) { //maxMediaSizeLimit: 1e7 or 10MB
+            appendMessage(`${fileType.charAt(0).toUpperCase()}${fileType.slice(1)} exceeds file size limit of 10MB (each ${fileType})`);
+            continue;
+        }
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onloadend = () => {
-            appendFile('photo', reader.result, false);
-            let compressedFile = LZUTF8.compress(reader.result, { outputEncoding: "StorageBinaryString" });
-            socket.emit('send-file', { type: 'chat-photo', payload: compressedFile });
+        reader.onloadend = async () => {
+            appendMedia(fileType, reader.result, false);
+            const CryptoWorker = new Worker('./js/Encryption/Workers/sec-v1.2-Worker.js');
+            let workerData = {
+                decrypt: false,
+                key: user.key,
+                payload: reader.result,
+                ioEncoding: 'ByteArray'
+            }
+            CryptoWorker.postMessage(workerData);
+            CryptoWorker.onerror = CryptoWorker.onmessageerror = (e) => {
+                console.error(e.data);
+                CryptoWorker.terminate();
+            }
+            CryptoWorker.onmessage = (e) => {
+                socket.emit('send-file', { appendType: 'inlineMedia', fileType: file.type, payload: e.data });
+            }
         }
     }
+}
+
+function sendFiles(files=null){
+    if (files == null) return;
+    for(i=0; i<files.length; i++){
+        const file = files.item(i);
+        if (file.size > 5e7) { //maxFileSizeLimit: 5e7 or 50MB
+            appendMessage(`File exceeds size limit of 50MB (each file)`);
+            continue;
+        }
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = async () => {
+            appendFile(file.type, file.name, reader.result, false, user.userName, socket.id);
+            const CryptoWorker = new Worker('./js/Encryption/Workers/sec-v1.2-Worker.js');
+            let workerData = {
+                decrypt: false,
+                key: user.key,
+                payload: reader.result,
+                ioEncoding: 'ByteArray'
+            }
+            CryptoWorker.postMessage(workerData);
+            CryptoWorker.onerror = CryptoWorker.onmessageerror = (e) => {
+                console.error(e.data);
+                CryptoWorker.terminate();
+            }
+            CryptoWorker.onmessage = (e) => {
+                socket.emit('send-file', { appendType: 'file', fileType: file.type, fileName: file.name, payload: e.data });
+            }
+        }
+    }
+}
+
+async function sendCallRequest(type='audio'){
+    if (user.peerID == null) return;
+    const myPeerID = await encrypt(user.peerID, user.key);
+	socket.emit('send-call-request', { peerID: myPeerID, callType: type, timeStamp: Date.now() });
+    appendCall(type, false, user.peerID, socket.id, user.userName, Date.now());
 }
 
 function joinCall(type='audio', peerID=null, socketID=null){

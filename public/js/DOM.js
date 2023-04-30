@@ -1,5 +1,6 @@
 const DOMElements = {
 	contextMenu: document.getElementById("contextMenu"),
+	toastNotification: document.getElementById("toastNotification"),
 	loginModal: document.getElementById("loginModal"),
 	loginUsername: document.getElementById("login_username"),
 	loginPasscode: document.getElementById("login_passcode"),
@@ -16,7 +17,6 @@ const DOMElements = {
 	remoteVideo: document.getElementById("remoteVideo"),
 	remoteWaveform: document.getElementById("remoteWaveform"),
 };
-
 
 function openUsersList(){ DOMElements.activeUsersListContainer.classList.add('activeUsersListContainer-open') }
 function closeUsersList(){ DOMElements.activeUsersListContainer.classList.remove('activeUsersListContainer-open') }
@@ -39,7 +39,6 @@ function contextMenuBuilder(options=[]){
 		if (!(option.Title)) continue;
 		if (!(option.Function)) continue;
 		let optionElement = document.createElement('div');
-		console.log(optionElement);
 		optionElement.classList.add('contextMenuElement');
 		optionElement.innerText = option.Title;
 		optionElement.addEventListener('click', option.Function);
@@ -51,6 +50,20 @@ function contextMenuBuilder(options=[]){
 function toggleView(toHide=[], toShow=[]){
 	toHide.forEach((DOMElement) => DOMElement.classList.add('hide'));
 	toShow.forEach((DOMElement) => DOMElement.classList.remove('hide'));
+}
+
+function toastNotification(message="", options={ notificationDuration: 2500, neverExpire: false, expireNow: false }){
+	DOMElements.toastNotification.innerText = String(message);
+	if (options.expireNow) {
+		DOMElements.toastNotification.classList.remove('showToast');
+		DOMElements.toastNotification.innerText = '';
+		return;
+	}
+	DOMElements.toastNotification.classList.add('showToast');
+	if (!options.neverExpire) setTimeout(() => {
+		DOMElements.toastNotification.classList.remove('showToast');
+		DOMElements.toastNotification.innerText = '';
+	}, options.notificationDuration);
 }
 
 function dragElement(DOMElement = new HTMLElement){
@@ -151,11 +164,11 @@ function appendMessage(message=null, options={ alignment:0, username:null, userI
 	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
 }
 
-function appendFile(type='file', base64String, bySender=false, senderName=null, senderID=null){
+async function appendMedia(fileType=null, base64String, bySender=false, senderName=null, senderID=null){
 	if (!base64String) return;
-	if (type == 'photo'){
+	if (fileType.split('/')[0] == 'image'){
 		const photoElement = document.createElement('div');
-		photoElement.classList.add('photoElement')
+		photoElement.classList.add('photoElement');
 		const pic = document.createElement('img');
 		pic.src = base64String;
 		pic.ondragstart = () => { return false };
@@ -172,9 +185,10 @@ function appendFile(type='file', base64String, bySender=false, senderName=null, 
 		photoElement.style.transform = (bySender) ? 'translateX(-0%)' : 'translateX(-100%)';
 		photoElement.style.borderRadius = (bySender) ? '0 0.75rem 0.75rem 0' : '0.75rem 0 0 0.75rem';
 		pic.addEventListener('load', () => {
-			if (bySender) photoElement.style.minHeight = `calc(2rem + ${pic.naturalHeight/2}px)`;
-			else photoElement.style.minHeight = `${pic.naturalHeight/2}px`;
-			pic.style.height = `${pic.naturalHeight/2}px`;
+			// if (bySender && DOMElements.messageContainer.dataset.lastMessageBy != senderID) photoElement.style.minHeight = `calc(2rem + ${pic.naturalHeight/2}px)`;
+			// else photoElement.style.minHeight = `${pic.naturalHeight/2}px`;
+			if (pic.naturalHeight > DOMElements.messageContainer.clientHeight) pic.style.height = `${DOMElements.messageContainer.clientHeight * (0.75)}px`;
+			// else if (pic.naturalWidth > (69/100 * DOMElements.messageContainer.clientWidth)) pic.style.maxWidth = `${DOMElements.messageContainer.clientWidth}px`;
 			photoElement.append(pic);
 			DOMElements.messageContainer.append(photoElement);
 			DOMElements.messageContainer.dataset.lastMessageBy = senderID;
@@ -188,13 +202,113 @@ function appendFile(type='file', base64String, bySender=false, senderName=null, 
 					Title: 'Download', Function: () => {
 						let a = document.createElement('a');
 						a.href = pic.src;
-						a.download = `${Date.now()}.jpg`;
+						a.download = `${Date.now()}.${fileType.split('/')[1]}`;
 						a.click();
 					}
 				}
 			]);
 		});
 	}
+
+	if (fileType.split('/')[0] == 'video'){
+		const videoElement = document.createElement('div');
+		videoElement.classList.add('videoElement');
+		const vid = document.createElement('video');
+		vid.src = base64String;
+		vid.ondragstart = () => { return false };
+		vid.classList.add('hasContextMenu');
+		if (bySender && DOMElements.messageContainer.dataset.lastMessageBy != senderID){
+			const namePlaceHolder = document.createElement('span');
+			namePlaceHolder.innerText = senderName;
+			namePlaceHolder.title = senderID;
+			videoElement.append(namePlaceHolder);
+			const separator = document.createElement('hr');
+			videoElement.append(separator);
+		}
+		videoElement.style.left = (bySender) ? '0%' : '100%';
+		videoElement.style.transform = (bySender) ? 'translateX(-0%)' : 'translateX(-100%)';
+		videoElement.style.borderRadius = (bySender) ? '0 0.75rem 0.75rem 0' : '0.75rem 0 0 0.75rem';
+		vid.style.width = `${69/100 * DOMElements.messageContainer.clientWidth}px`;
+		
+		videoElement.append(vid);
+		DOMElements.messageContainer.append(videoElement);
+		DOMElements.messageContainer.dataset.lastMessageBy = senderID;
+		videoElement.scrollIntoView({ behavior: 'smooth' });
+		if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
+
+		vid.addEventListener('contextmenu', (e) => {
+			DOMElements.contextMenu.classList.remove('hide');
+			contextMenuBuilder([
+				{
+					Title: 'Download', Function: () => {
+						let a = document.createElement('a');
+						a.href = vid.src;
+						a.download = `Namaste_${senderName}_${Date.now()}.${fileType.split('/')[1]}`;
+						a.click();
+					}
+				},
+				{ Title: 'Play', Function: () => { vid.play() } },
+				{ Title: 'Pause', Function: () => { vid.pause() } },
+				{ Title: 'Mute', Function: () => { vid.muted = !(vid.muted) } }
+			]);
+		});
+	}
+}
+
+function appendFile(fileType=null, fileName=null, base64String, bySender=false, senderName=null, senderID=null){
+	if (!base64String) return;
+	const fileElement = document.createElement('div');
+	fileElement.classList.add('fileElement');
+	const hyperlink = document.createElement('a');
+	hyperlink.href = base64String;
+	
+	const div = document.createElement('div');
+
+	const fileNameHolder = document.createElement('span');
+	fileNameHolder.style.gridArea = 'filename';
+	fileNameHolder.innerText = fileName;
+	fileNameHolder.title = fileName;
+	div.append(fileNameHolder);
+	
+	let fileSize = `${(String(base64String).length * 0.75)}`;
+	if (fileSize < 1024) fileSize = `${parseFloat(fileSize).toFixed(2)} B`;
+	else if (fileSize >= 1024) fileSize = `${(parseFloat(fileSize)/1024).toFixed(2)} KB`;
+	else if (fileSize >= (1024*1024)) fileSize = `${(parseFloat(fileSize)/1024*1024).toFixed(2)} MB`;
+	else if (fileSize >= (1024*1024*1024)) fileSize = `${(parseFloat(fileSize)/(1024*1024*1024)).toFixed(2)} GB`;
+	const fileMetaHolder = document.createElement('span');
+	fileMetaHolder.style.gridArea = 'filemeta';
+	fileMetaHolder.innerText = `${fileSize}, ${String(fileType.split('/')[1]).toUpperCase()} File`;
+	div.append(fileMetaHolder);
+
+	const downloadBtn = document.createElement('img');
+	downloadBtn.classList.add('Button');
+	downloadBtn.style.gridArea = 'downloadBtn';
+	downloadBtn.src = './imgs/app/download.svg';
+	downloadBtn.addEventListener('click', (e) => {
+		e.preventDefault();
+		hyperlink.download = fileName;
+		hyperlink.click();
+	});
+	div.append(downloadBtn);
+	
+	if (bySender && DOMElements.messageContainer.dataset.lastMessageBy != senderID){
+		const namePlaceHolder = document.createElement('span');
+		namePlaceHolder.innerText = senderName;
+		namePlaceHolder.title = senderID;
+		fileElement.append(namePlaceHolder);
+		const separator = document.createElement('hr');
+		fileElement.append(separator);
+	}
+	fileElement.style.left = (bySender) ? '0%' : '100%';
+	fileElement.style.transform = (bySender) ? 'translateX(-0%)' : 'translateX(-100%)';
+	fileElement.style.borderRadius = (bySender) ? '0 0.75rem 0.75rem 0' : '0.75rem 0 0 0.75rem';
+	fileElement.style.width = `${0.4 * DOMElements.messageContainer.clientWidth}px`;
+	
+	fileElement.append(div);
+	DOMElements.messageContainer.append(fileElement);
+	DOMElements.messageContainer.dataset.lastMessageBy = senderID;
+	fileElement.scrollIntoView({ behavior: 'smooth' });
+	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
 }
 
 function appendCall(type='audio', bySender=false, peerID=null, socketID=null, senderName=null, timeStamp=null){

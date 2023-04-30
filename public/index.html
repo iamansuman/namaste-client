@@ -13,6 +13,7 @@
 </head>
 <body>
     <div id="contextMenu" class="contextMenu hide"></div>
+    <div id="toastNotification"></div>
 
     <div id="loginModal" class="modalBackGround">
         <div class="modalContentsContainer">
@@ -79,16 +80,19 @@
             <img class="Button" src="./imgs/app/call.svg" alt="Call" title="Call" onclick="sendCallRequest('audio')" />
             <img class="Button" src="./imgs/app/video-call.svg" alt="Video Call" title="Video Call" onclick="sendCallRequest('video')" />
             <img class="Button" src="./imgs/app/gallery.svg" alt="Gallery" title="Send Photo(s)" data-target-file-btn="galleryUploadFiles" onclick="document.getElementById(this.dataset.targetFileBtn).click()" />
-            <input type="file" id="galleryUploadFiles" accept="image/*" hidden multiple onchange="sendPhotos(this.files)" />
+            <input type="file" id="galleryUploadFiles" accept="image/*, video/*" hidden multiple onchange="sendImagesVideos(this.files)" />
+            <img class="Button" src="./imgs/app/paper-clip.svg" alt="Files" title="Send File(s)" data-target-file-btn="generalUploadFiles" onclick="document.getElementById(this.dataset.targetFileBtn).click()" />
+            <input type="file" id="generalUploadFiles" hidden multiple onchange="sendFiles(this.files); this.value = null" />
             <input name="txtMsgBox" placeholder="Message" title="Enter your Message" tabindex="0" onload="this.focus()" required autocomplete="off" id="txt-msg-box" />
             <input class="Button" type="image" src="./imgs/app/send.svg" alt="Send" id="send-btn" title="Send" disabled />
         </form>
     </div>
 
     <script defer src="https://unpkg.com/lzutf8@latest/build/production/lzutf8.min.js"></script>
+    <script defer src="https://unpkg.com/localbase@latest/dist/localbase.min.js"></script>
     <script defer src="https://unpkg.com/peerjs@latest/dist/peerjs.min.js"></script>
 	<script defer src="https://unpkg.com/socket.io@latest/client-dist/socket.io.min.js"></script>
-	<script defer src="js/Encryption/sec-v1.1.js"></script>
+	<script defer src="js/Encryption/sec-v1.2.js"></script>
 	<script defer src="js/Waveform.js"></script>
 	<script defer src="js/DOM.js"></script>
 	<script defer src="js/script.js"></script>
