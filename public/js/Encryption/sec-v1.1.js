@@ -2,6 +2,15 @@
 //https://github.com/rotemdan/lzutf8.js/
 //https://unpkg.com/lzutf8@latest/build/production/lzutf8.min.js
 
+const NAMASTE_ENCDECALG = {
+	version: '1.1',
+	defaultKey: "00000000",
+	dependencies: {
+		"lzutf8": ["https://github.com/rotemdan/lzutf8.js/", "https://unpkg.com/lzutf8@latest/build/production/lzutf8.min.js"]
+	},
+	note: ""
+};
+
 function charToUnicode(text) {
 	return String(text.split('').map(function (value, index, array) {
 		let temp = value.charCodeAt(0).toString(16).toUpperCase();
@@ -15,7 +24,7 @@ function unicodeToChar(text) {
 	});
 }
 
-function encrypt(plTxt, keyin="00000000") {
+function encrypt(plTxt, keyin=NAMASTE_ENCDECALG.defaultKey) {
 	const keyStr = String(keyin);
 	let key = 0;
 	for (i=0; i<keyStr.length; i++) key += keyStr.charCodeAt(i);
@@ -32,7 +41,7 @@ function encrypt(plTxt, keyin="00000000") {
 	return LZUTF8.compress(result, { outputEncoding: "StorageBinaryString" });
 }
 
-function decrypt(ciTxt, keyin="00000000") {
+function decrypt(ciTxt, keyin=NAMASTE_ENCDECALG.defaultKey) {
 	const keyStr = String(keyin);
 	let key = 0;
 	for (i=0; i<keyStr.length; i++) key += keyStr.charCodeAt(i);
