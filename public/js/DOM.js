@@ -270,11 +270,11 @@ function appendFile(fileType=null, fileName=null, base64String, bySender=false, 
 	fileNameHolder.title = fileName;
 	div.append(fileNameHolder);
 	
-	let fileSize = `${(String(base64String).length * 0.75)}`;
+	let fileSize = String(base64String).length * 0.75;
 	if (fileSize < 1024) fileSize = `${parseFloat(fileSize).toFixed(2)} B`;
-	else if (fileSize >= 1024) fileSize = `${(parseFloat(fileSize)/1024).toFixed(2)} KB`;
-	else if (fileSize >= (1024*1024)) fileSize = `${(parseFloat(fileSize)/1024*1024).toFixed(2)} MB`;
-	else if (fileSize >= (1024*1024*1024)) fileSize = `${(parseFloat(fileSize)/(1024*1024*1024)).toFixed(2)} GB`;
+	else if (fileSize >= (1024) && fileSize < (1024*1024)) fileSize = `${(parseFloat(fileSize)/1024).toFixed(2)} KB`;
+	else if (fileSize >= (1024*1024) && fileSize < (1024*1024*1024)) fileSize = `${(parseFloat(fileSize)/1024*1024).toFixed(2)} MB`;
+	else fileSize = `${(parseFloat(fileSize)/(1024*1024*1024)).toFixed(2)} GB`;
 	const fileMetaHolder = document.createElement('span');
 	fileMetaHolder.style.gridArea = 'filemeta';
 	fileMetaHolder.innerText = `${fileSize}, ${String(fileType.split('/')[1]).toUpperCase()} File`;

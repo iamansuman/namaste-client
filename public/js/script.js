@@ -2,6 +2,7 @@ const socket = io({ autoConnect: false });
 const peer = new Peer();
 const user = { userName: null, key: null, peerID: null, currentCall: null, currentCallRemoteSocketID: null };
 const SETTINGS = {
+    cryptoWorkerLocation: './js/Encryption/Workers/sec-v1.3-Worker.js',
 	keepLoginInfo: localStorage.getItem('keepLoginInfo')
 };
 const ChatDB = new Localbase('Chats');
@@ -90,7 +91,7 @@ socket.on('chat-message', async ({ senderName, senderID, messageBody, timeStamp 
 });
 
 socket.on('inline-media', async ({ senderName, senderID, fileType, payload, timeStamp }) => {
-    const CryptoWorker = new Worker('./js/Encryption/Workers/sec-v1.2-Worker.js');
+    const CryptoWorker = new Worker(SETTINGS.cryptoWorkerLocation);
     let workerData = {
         decrypt: true,
         key: user.key,
@@ -128,7 +129,7 @@ socket.on('inline-media', async ({ senderName, senderID, fileType, payload, time
 });
 
 socket.on('file', async ({ senderName, senderID, fileType, fileName, payload, timeStamp }) => {
-    const CryptoWorker = new Worker('./js/Encryption/Workers/sec-v1.2-Worker.js');
+    const CryptoWorker = new Worker(SETTINGS.cryptoWorkerLocation);
     let workerData = {
         decrypt: true,
         key: user.key,
@@ -225,7 +226,7 @@ function sendImagesVideos(files=null){
         reader.readAsDataURL(file);
         reader.onloadend = async () => {
             appendMedia(fileType, reader.result, false);
-            const CryptoWorker = new Worker('./js/Encryption/Workers/sec-v1.2-Worker.js');
+            const CryptoWorker = new Worker(SETTINGS.cryptoWorkerLocation);
             let workerData = {
                 decrypt: false,
                 key: user.key,
@@ -256,7 +257,7 @@ function sendFiles(files=null){
         reader.readAsDataURL(file);
         reader.onloadend = async () => {
             appendFile(file.type, file.name, reader.result, false, user.userName, socket.id);
-            const CryptoWorker = new Worker('./js/Encryption/Workers/sec-v1.2-Worker.js');
+            const CryptoWorker = new Worker(SETTINGS.cryptoWorkerLocation);
             let workerData = {
                 decrypt: false,
                 key: user.key,
