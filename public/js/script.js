@@ -1,10 +1,11 @@
-const socket = io({ autoConnect: false });
+const DEVMODE = Boolean(location.hostname == 'localhost');
+const SETTINGS = {
+    socketServerLocation: DEVMODE ? 'http://localhost:8082' : 'https://namaste.onrender.com/',
+    cryptoWorkerLocation: './js/Encryption/Workers/sec-v1.3-Worker.js',
+};
+const socket = io(SETTINGS.socketServerLocation, { autoConnect: false });
 const peer = new Peer();
 const user = { userName: null, key: null, peerID: null, currentCall: null, currentCallRemoteSocketID: null };
-const SETTINGS = {
-    cryptoWorkerLocation: './js/Encryption/Workers/sec-v1.3-Worker.js',
-	keepLoginInfo: localStorage.getItem('keepLoginInfo')
-};
 const ChatDB = new Localbase('Chats');
 ChatDB.config.debug = false;
 let allUsers = []; //<- Not necessary, good to keep
