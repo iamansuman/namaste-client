@@ -1,6 +1,6 @@
 const DEVMODE = Boolean(location.hostname == 'localhost');
 const SETTINGS = {
-    socketServerLocation: DEVMODE ? 'http://localhost:8082' : 'https://namaste.onrender.com/',
+    socketServerLocation: DEVMODE ? 'http://localhost:8082' : 'https://namaste-server.onrender.com/',
     cryptoWorkerLocation: './js/Encryption/Workers/sec-v1.3-Worker.js',
 };
 const socket = io(SETTINGS.socketServerLocation, { autoConnect: false });
