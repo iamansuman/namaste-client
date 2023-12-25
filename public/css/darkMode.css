@@ -28,4 +28,5 @@
     #msg-container::-webkit-scrollbar-thumb:hover { background: var(--theme-color-light) }
 
     #send-container{ background-color: #191919 }
+    #loginModal .modalContentsContainer{ background-image: linear-gradient(45deg, var(--theme-color-dark) 35%, var(--theme-color-light)) }
 }

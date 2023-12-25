@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
     <title>Namaste</title>
-    <meta name="description" content="Chat with your friends, securely 🔒">
+    <meta name="description" content="Chat with your friends, securely 🔒✨">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="css/darkMode.css">
@@ -17,12 +17,22 @@
 
     <div id="loginModal" class="modalBackGround">
         <div class="modalContentsContainer">
-            <h1 class="namasteTextLogo" title="Namaste">Namaste</h1>
-            <form onsubmit="passCreds(event)">
-                <input type="text" id="login_username" title="Username" required placeholder="Username"/>
-                <input type="text" id="login_passcode" title="PassCode" required placeholder="Passcode (min. 8 letters)" minlength="8"/>
-                <input type="submit" disabled id="login_btn" disabled value="Enter">
-            </form>
+            <div id="welcomePoster">
+                <img style="filter: grayscale(0.8)" src="./imgs/backgrounds/mandala-backdrop.jpg" alt="Mandala">
+                <img class="rotatingmandala" style="top: -0.5em; left: 7.5em; height: 30vmin;" src="./imgs/backgrounds/mandala-main.png" alt="Rotating Mandala">
+                <img class="rotatingmandala" style="top: 15em; left: 1.5em; height: 50vmin; animation-direction: reverse;" src="./imgs/backgrounds/mandala-main.png" alt="Rotating Mandala">
+                <img class="rotatingmandala" style="top: 1.5em; left: 22em; height: 50vmin;" src="./imgs/backgrounds/mandala-main.png" alt="Rotating Mandala">
+                <img class="rotatingmandala" style="top: 27em; left: 26em; height: 35vmin;" src="./imgs/backgrounds/mandala-main.png" alt="Rotating Mandala">
+            </div>
+            <div id="credsArea">
+                <h1 style="font-size: 65px;" class="namasteTextLogo" title="Namaste">Namaste</h1>
+                <div style="height: 100px"></div>
+                <form onsubmit="passCreds(event)">
+                    <input type="text" id="login_username" title="Username" required placeholder="Username"/>
+                    <input type="password" id="login_passcode" title="PassCode" required placeholder="Passcode (min. 8 letters)" minlength="8"/>
+                    <input type="submit" disabled id="login_btn" disabled value="Enter">
+                </form>
+            </div>
         </div>
     </div>
 
@@ -30,13 +40,18 @@
     <div id="videoCallModal" class="modalBackGround hide" data-target-float-btn="videoCallModalFloatBtn">
         <img class="closeModalBtn" src="./imgs/app/close.svg" alt="Close" title="Close" onclick="toggleView([this.parentElement], [document.getElementById(this.parentElement.dataset.targetFloatBtn)])">
         <div class="modalContentsContainer">
+            <!-- <div class="miscCallInfo">
+                <span id="callTimer">00:00:00</span>
+            </div> -->
             <div class="videoContainer">
                 <video id="myVideo" muted autoplay poster="./imgs/app/no-connection.jpeg"></video>
                 <video id="remoteVideo" autoplay poster="./imgs/app/no-connection.jpeg"></video>
             </div>
             <div class="callControls">
                 <canvas id="myWaveform"></canvas>
+                <img src="./imgs/app/mic-on.svg" alt="Mute Toggle" id="micToggle">
                 <img src="./imgs/app/call-end.svg" alt="End Call" onclick="endCall()">
+                <img src="./imgs/app/video-on.svg" alt="Camera Toggle" id="videoToggle">
                 <canvas id="remoteWaveform" style="transform: rotate(180deg);"></canvas>
             </div>
         </div>

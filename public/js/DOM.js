@@ -12,10 +12,13 @@ const DOMElements = {
 	activeUserList: document.getElementById("activeUsers"),
 	videoCallModal: document.getElementById("videoCallModal"),
 	videoCallModalFloatBtn: document.getElementById("videoCallModalFloatBtn"),
+	callTimer: document.getElementById("callTimer"),
 	myVideo: document.getElementById("myVideo"),
 	myWaveform: document.getElementById("myWaveform"),
 	remoteVideo: document.getElementById("remoteVideo"),
 	remoteWaveform: document.getElementById("remoteWaveform"),
+	micToggle: document.getElementById("micToggle"),
+	videoToggle: document.getElementById("videoToggle"),
 };
 
 function openUsersList(){ DOMElements.activeUsersListContainer.classList.add('activeUsersListContainer-open') }
@@ -52,7 +55,7 @@ function toggleView(toHide=[], toShow=[]){
 	toShow.forEach((DOMElement) => DOMElement.classList.remove('hide'));
 }
 
-function toastNotification(message="", options={ notificationDuration: 2500, neverExpire: false, expireNow: false }){
+function toastNotification(message="", options={ notificationDuration: 3000, neverExpire: false, expireNow: false }){
 	DOMElements.toastNotification.innerText = String(message);
 	if (options.expireNow) {
 		DOMElements.toastNotification.classList.remove('showToast');
@@ -124,6 +127,7 @@ function listUsers(users=allUsers, clearTable=false){
 
 function appendMessage(message=null, options={ alignment:0, username:null, userId:null, timeStamp:null }){
 	if (message==null) return;
+	if (!DOMElements.videoCallModal.classList.contains('hide')) toastNotification(`${options.username ?? "Someone"}: ${message}`);
 	function isValidURL(string) {
 		try { new URL(string); return true }
 		catch (err) { return false }
@@ -379,6 +383,9 @@ window.document.addEventListener('contextmenu', (e) => {
 	DOMElements.contextMenu.style.top = `${(e.y + DOMElements.contextMenu.offsetHeight > window.innerHeight) ? window.innerHeight - DOMElements.contextMenu.offsetHeight : e.y}px`;
 	DOMElements.contextMenu.style.left = `${(e.x + DOMElements.contextMenu.offsetWidth > window.innerWidth) ? window.innerWidth - DOMElements.contextMenu.offsetWidth : e.x}px`;
 });
+
+let imageElements = document.getElementsByTagName('img');
+for (i=0; i<imageElements.length; i++) imageElements.item(i).draggable = false;
 
 //Execution
 toggleView([DOMElements.videoCallModal, DOMElements.videoCallModalFloatBtn], [DOMElements.loginModal]);

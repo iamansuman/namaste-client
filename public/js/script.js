@@ -1,13 +1,13 @@
-const DEVMODE = Boolean(location.hostname == 'localhost');
+const DEVMODE = Boolean(location.hostname == 'localhost') || Boolean(location.hostname.startsWith('192.168'));
 const SETTINGS = {
-    socketServerLocation: DEVMODE ? 'http://localhost:8082' : 'https://namaste-server.onrender.com/',
+    socketServerLocation: DEVMODE ? `http://${location.hostname}:8082` : 'https://namaste-server.onrender.com/',
     cryptoWorkerLocation: './js/Encryption/Workers/sec-v1.3-Worker.js',
 };
 const socket = io(SETTINGS.socketServerLocation, { autoConnect: false });
 const peer = new Peer();
 const user = { userName: null, key: null, peerID: null, currentCall: null, currentCallRemoteSocketID: null };
 const ChatDB = new Localbase('Chats');
-ChatDB.config.debug = false;
+ChatDB.config.debug = DEVMODE;
 let allUsers = []; //<- Not necessary, good to keep
 
 const usp = new URLSearchParams(document.location.href.split('?')[1]);
@@ -32,15 +32,54 @@ peer.on('call', (ring) => {
     DOMElements.videoCallModalFloatBtn.src = (callType=='audio') ? './imgs/app/call.svg' : './imgs/app/video-call.svg' ;
     navigator.mediaDevices.getUserMedia({ video: Boolean(callType == 'video'), audio:true })
     .then((stream) => {
+        // let callTime = 0;
+        // let callTimerFunction = null;
         DOMElements.myVideo.srcObject = stream;
         WaveformLocal.draw(stream, DOMElements.myWaveform);
+        DOMElements.micToggle.addEventListener('click', () => {
+            let track = stream.getAudioTracks()[0];
+            if (track.enabled) {
+                track.enabled = false;
+                DOMElements.micToggle.src = './imgs/app/mic-off.svg';
+            } else {
+                track.enabled = true;
+                DOMElements.micToggle.src = './imgs/app/mic-on.svg';
+            }
+        });
+        DOMElements.videoToggle.addEventListener('click', () => {
+            let track = stream.getVideoTracks()[0];
+            if (track.enabled) {
+                DOMElements.myVideo.srcObject = null;
+                track.enabled = false;
+                DOMElements.videoToggle.src = './imgs/app/video-off.svg';
+            } else {
+                track.enabled = true;
+                DOMElements.myVideo.srcObject = stream;
+                DOMElements.videoToggle.src = './imgs/app/video-on.svg';
+            }
+        });
         toggleView([], [DOMElements.videoCallModal]);
         ring.answer(stream);
         ring.on('stream', (remoteStream) => {
             DOMElements.remoteVideo.srcObject = remoteStream;
             WaveformRemote.draw(remoteStream, DOMElements.remoteWaveform);
+            // callTime = 0; //in secs
+            // callTimerFunction = setInterval(() => {
+            //     callTime++;
+            //     let hours = (callTime >= 3600) ? parseInt(callTime/3600) : 0;
+            //     let mins = (callTime >= 60) ? parseInt((callTime%3600)/60) : 0;
+            //     let secs = parseInt(callTime - hours*3600 - mins*60);
+            //     DOMElements.callTimer.innerText = String(hours).padStart(2, 0) + ':' + String(mins).padStart(2, 0) + ':' + String(secs).padStart(2, 0);
+            // }, 1000);
         });
-        ring.on('close', () => { endCall() });
+        ring.on('close', () => {
+            endCall();
+            // if (callTimerFunction != null){
+            //     window.clearInterval(callTimerFunction);
+            //     callTime = 0;
+            //     callTimerFunction = null;
+            // }
+        });
     })
     .catch((err) => { console.error(err) });
 });
@@ -291,15 +330,52 @@ function joinCall(type='audio', peerID=null, socketID=null){
     user.currentCallRemoteSocketID = socketID;
 	navigator.mediaDevices.getUserMedia({ video: Boolean(type=='video'), audio:true })
     .then((stream) => {
+        // let callTime = 0;
+        // let callTimerFunction = null;
         DOMElements.myVideo.srcObject = stream;
         WaveformLocal.draw(stream, DOMElements.myWaveform);
+        DOMElements.micToggle.addEventListener('click', (e) => {
+            let track = stream.getAudioTracks()[0];
+            if (track.enabled) {
+                track.enabled = false;
+                DOMElements.micToggle.src = './imgs/app/mic-off.svg';
+            } else {
+                track.enabled = true;
+                DOMElements.micToggle.src = './imgs/app/mic-on.svg';
+            }
+        });
+        DOMElements.videoToggle.addEventListener('click', (e) => {
+            let track = stream.getVideoTracks()[0];
+            if (track.enabled) {
+                track.enabled = false;
+                DOMElements.videoToggle.src = './imgs/app/video-off.svg';
+            } else {
+                track.enabled = true;
+                DOMElements.videoToggle.src = './imgs/app/video-on.svg';
+            }
+        });
         toggleView([DOMElements.videoCallModalFloatBtn], [DOMElements.videoCallModal])
         let call = user.currentCall = peer.call(peerID, stream, {metadata: { callType: type, peerSocketID: socket.id }});
         call.on('stream', (remoteStream) => {
             DOMElements.remoteVideo.srcObject = remoteStream;
             WaveformRemote.draw(remoteStream, DOMElements.remoteWaveform);
+            // callTime = 0; //in secs
+            // callTimerFunction = setInterval(() => {
+            //     ++callTime;
+            //     let hours = (callTime >= 3600) ? parseInt(callTime/3600) : 0;
+            //     let mins = (callTime >= 60) ? parseInt((callTime%3600)/60) : 0;
+            //     let secs = parseInt(callTime - hours*3600 - mins*60);
+            //     DOMElements.callTimer.innerText = String(hours).padStart(2, 0) + ':' + String(mins).padStart(2, 0) + ':' + String(secs).padStart(2, 0);
+            // }, 1000);
         });
-        call.on('close', () => { endCall() });
+        call.on('close', () => {
+            endCall();
+            // if (callTimerFunction != null){
+            //     window.clearInterval(callTimerFunction);
+            //     callTime = 0;
+            //     callTimerFunction = null;
+            // }
+        });
     })
     .catch((err) => { console.error(err) });
 }

@@ -42,6 +42,12 @@
 }
 
 /* For Login Modal */
+#loginModal .modalContentsContainer{
+    flex-direction: row;
+    align-items: center;
+    background-image: linear-gradient(45deg, #ff3d00 10%, #dcdc00);
+}
+
 .modalContentsContainer form{
     margin: auto 0;
     display: flex;
@@ -52,6 +58,29 @@
     width: 75%;
 }
 
+#welcomePoster{
+    height: 100%;
+    /* display: flex;
+    flex-wrap: wrap;
+    align-content: center; */
+    max-width: 50%;
+    border-radius: 0.5em;
+}
+
+.rotatingmandala{
+    position: fixed;
+    width: auto;
+    z-index: 3;
+    animation: rotate 25s linear infinite;
+}
+
+#credsArea{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+}
+
 .modalContentsContainer form input{
     margin: 1rem 0;
     padding: 1rem;
@@ -60,13 +89,19 @@
     border: none;
     width: 70%;
     color: #000000;
+    font-family: cursive;
 }
+
+.modalContentsContainer form input:hover{ transform: scale(1.05) }
+
+.modalContentsContainer form input:focus{ transform: scale(1.05) }
 
 .modalContentsContainer form input[type='submit']{
     width: 50%;
     cursor: pointer;
     transition: 500ms ease;
     font-size: larger;
+    font-family: cursive;
 }
 
 .modalContentsContainer form input[type='submit']:hover{
@@ -96,6 +131,12 @@
     flex-direction: row;
 }
 
+.modalContentsContainer .miscCallInfo{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
 .modalContentsContainer .callControls{
     display: flex;
     flex-direction: row;    
@@ -118,6 +159,11 @@
     cursor: pointer;
     z-index: 10;
     animation: flash 1000ms linear 0ms infinite alternate none;
+}
+
+@keyframes rotate {
+    0% { rotate: 0deg }
+    100% { rotate: 360deg }
 }
 
 @keyframes flash {
