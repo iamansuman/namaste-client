@@ -125,7 +125,13 @@ function listUsers(users=allUsers, clearTable=false){
 	});
 }
 
-function appendMessage(message=null, options={ alignment:0, username:null, userId:null, timeStamp:null }){
+function appendMessage(message=null, options={ alignment:0, username:null, userId:null, timeStamp:null, highAlert:false }){
+	options.alignment = options.alignment ?? 0;
+	options.username = options.username ?? null;
+	options.userId = options.userId ?? null;
+	options.timeStamp = options.timeStamp ?? null;
+	options.highAlert = options.highAlert ?? false;
+
 	if (message==null) return;
 	if (!DOMElements.videoCallModal.classList.contains('hide')) toastNotification(`${options.username ?? "Someone"}: ${message}`);
 	function isValidURL(string) {
@@ -133,7 +139,7 @@ function appendMessage(message=null, options={ alignment:0, username:null, userI
 		catch (err) { return false }
 	}
 	const sentences = String(message).split(' ');
-    //0-> System Notifications; 1-> Sender; 2-> Sender
+    //0-> System Notifications; 1-> Receiver; 2-> Sender
     const alignmentOptions = [['50%', 'translateX(-50%)'], ['0%', 'translateX(0%)'], ['100%', 'translateX(-100%)']];
     const borderRadiusOptions = ['1rem', '0 1rem 1rem 0', '1rem 0 0 1rem'];
 	const messageElement = document.createElement('div');
@@ -141,6 +147,7 @@ function appendMessage(message=null, options={ alignment:0, username:null, userI
 	messageElement.style.left = alignmentOptions[options.alignment][0];
 	messageElement.style.transform = alignmentOptions[options.alignment][1];
 	messageElement.style.borderRadius = borderRadiusOptions[options.alignment];
+	if (options.highAlert) messageElement.style.backgroundColor = "#ff0000";
 	if (options.username != null && DOMElements.messageContainer.dataset.lastMessageBy != options.userId){
 		const nameStamp = document.createElement('span');
 		nameStamp.innerText = options.username;
@@ -347,6 +354,7 @@ function appendCall(type='audio', bySender=false, peerID=null, socketID=null, se
 	DOMElements.messageContainer.dataset.lastMessageBy = socketID;
 	requestCallElement.scrollIntoView({ behavior: 'smooth' });
 	if (document.hidden) DOMElements.messageContainer.scrollTop = DOMElements.messageContainer.scrollHeight;
+	if (!bySender) appendMessage("Anyone currently on the server can call you.", { highAlert:true });
 }
 
 function passCreds(e, resetFields=true){
@@ -371,17 +379,31 @@ function passCreds(e, resetFields=true){
 
 //EventListeners
 window.document.addEventListener('click', () => {
-	DOMElements.contextMenu.classList.add('hide');
+	toggleView([DOMElements.contextMenu]);
+	DOMElements.contextMenu.innerHTML = null;
 });
 
 DOMElements.messageContainer.addEventListener('scroll', (e) => {
-	DOMElements.contextMenu.classList.add('hide');
+	toggleView([DOMElements.contextMenu]);
+	DOMElements.contextMenu.innerHTML = null;
 });
 
 window.document.addEventListener('contextmenu', (e) => {
 	e.preventDefault();
 	DOMElements.contextMenu.style.top = `${(e.y + DOMElements.contextMenu.offsetHeight > window.innerHeight) ? window.innerHeight - DOMElements.contextMenu.offsetHeight : e.y}px`;
 	DOMElements.contextMenu.style.left = `${(e.x + DOMElements.contextMenu.offsetWidth > window.innerWidth) ? window.innerWidth - DOMElements.contextMenu.offsetWidth : e.x}px`;
+});
+
+DOMElements.remoteVideo.addEventListener('dblclick', () => DOMElements.videoCallModal.getElementsByClassName('modalContentsContainer')[0].requestFullscreen());
+DOMElements.remoteVideo.addEventListener('contextmenu', () => {
+	toggleView([], [DOMElements.contextMenu]);
+	contextMenuBuilder([
+		{
+			Title: 'Fullscreen', Function: () => {
+				DOMElements.videoCallModal.getElementsByClassName('modalContentsContainer')[0].requestFullscreen();
+			}
+		}
+	]);
 });
 
 let imageElements = document.getElementsByTagName('img');

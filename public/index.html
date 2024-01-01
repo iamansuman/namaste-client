@@ -48,19 +48,19 @@
     <div id="videoCallModal" class="modalBackGround hide" data-target-float-btn="videoCallModalFloatBtn">
         <img class="closeModalBtn" src="./imgs/app/close.svg" alt="Close" title="Close" onclick="toggleView([this.parentElement], [document.getElementById(this.parentElement.dataset.targetFloatBtn)])">
         <div class="modalContentsContainer">
-            <!-- <div class="miscCallInfo">
+            <div class="miscCallInfo">
                 <span id="callTimer">00:00:00</span>
-            </div> -->
+            </div>
             <div class="videoContainer">
                 <video id="myVideo" muted autoplay poster="./imgs/app/no-connection.jpeg"></video>
                 <video id="remoteVideo" autoplay poster="./imgs/app/no-connection.jpeg"></video>
             </div>
             <div class="callControls">
-                <canvas id="myWaveform"></canvas>
+                <canvas id="myWaveform" title="Your Voice"></canvas>
                 <img src="./imgs/app/mic-on.svg" alt="Mute Toggle" id="micToggle">
-                <img src="./imgs/app/call-end.svg" alt="End Call" onclick="endCall()">
+                <img src="./imgs/app/call-end.svg" alt="End Call" onclick="endCall()" style="height: 5.5em">
                 <img src="./imgs/app/video-on.svg" alt="Camera Toggle" id="videoToggle">
-                <canvas id="remoteWaveform" style="transform: rotate(180deg);"></canvas>
+                <canvas id="remoteWaveform" style="transform: rotate(180deg);" title="Their Voice"></canvas>
             </div>
         </div>
     </div>

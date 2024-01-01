@@ -32,8 +32,7 @@ peer.on('call', (ring) => {
     DOMElements.videoCallModalFloatBtn.src = (callType=='audio') ? './imgs/app/call.svg' : './imgs/app/video-call.svg' ;
     navigator.mediaDevices.getUserMedia({ video: Boolean(callType == 'video'), audio:true })
     .then((stream) => {
-        // let callTime = 0;
-        // let callTimerFunction = null;
+        let callTimerFunction = null;
         DOMElements.myVideo.srcObject = stream;
         WaveformLocal.draw(stream, DOMElements.myWaveform);
         DOMElements.micToggle.addEventListener('click', () => {
@@ -58,27 +57,25 @@ peer.on('call', (ring) => {
                 DOMElements.videoToggle.src = './imgs/app/video-on.svg';
             }
         });
-        toggleView([], [DOMElements.videoCallModal]);
+        toggleView([DOMElements.videoCallModalFloatBtn], [DOMElements.videoCallModal]);
+        callTimerFunction = setInterval(() => {
+            let callTime = parseInt(DOMElements.myVideo.currentTime) ?? 0;
+            let hours = (callTime >= 3600) ? parseInt(callTime/3600) : 0;
+            let mins = (callTime >= 60) ? parseInt((callTime%3600)/60) : 0;
+            let secs = parseInt(callTime - hours*3600 - mins*60);
+            DOMElements.callTimer.innerText = String(hours).padStart(2, 0) + ':' + String(mins).padStart(2, 0) + ':' + String(secs).padStart(2, 0);
+        }, 500);
         ring.answer(stream);
         ring.on('stream', (remoteStream) => {
             DOMElements.remoteVideo.srcObject = remoteStream;
             WaveformRemote.draw(remoteStream, DOMElements.remoteWaveform);
-            // callTime = 0; //in secs
-            // callTimerFunction = setInterval(() => {
-            //     callTime++;
-            //     let hours = (callTime >= 3600) ? parseInt(callTime/3600) : 0;
-            //     let mins = (callTime >= 60) ? parseInt((callTime%3600)/60) : 0;
-            //     let secs = parseInt(callTime - hours*3600 - mins*60);
-            //     DOMElements.callTimer.innerText = String(hours).padStart(2, 0) + ':' + String(mins).padStart(2, 0) + ':' + String(secs).padStart(2, 0);
-            // }, 1000);
         });
         ring.on('close', () => {
             endCall();
-            // if (callTimerFunction != null){
-            //     window.clearInterval(callTimerFunction);
-            //     callTime = 0;
-            //     callTimerFunction = null;
-            // }
+            if (callTimerFunction != null){
+                window.clearInterval(callTimerFunction);
+                callTimerFunction = null;
+            }
         });
     })
     .catch((err) => { console.error(err) });
@@ -330,8 +327,7 @@ function joinCall(type='audio', peerID=null, socketID=null){
     user.currentCallRemoteSocketID = socketID;
 	navigator.mediaDevices.getUserMedia({ video: Boolean(type=='video'), audio:true })
     .then((stream) => {
-        // let callTime = 0;
-        // let callTimerFunction = null;
+        let callTimerFunction = null;
         DOMElements.myVideo.srcObject = stream;
         WaveformLocal.draw(stream, DOMElements.myWaveform);
         DOMElements.micToggle.addEventListener('click', (e) => {
@@ -354,27 +350,25 @@ function joinCall(type='audio', peerID=null, socketID=null){
                 DOMElements.videoToggle.src = './imgs/app/video-on.svg';
             }
         });
-        toggleView([DOMElements.videoCallModalFloatBtn], [DOMElements.videoCallModal])
+        callTimerFunction = setInterval(() => {
+            let callTime = parseInt(DOMElements.myVideo.currentTime) ?? 0;
+            let hours = (callTime >= 3600) ? parseInt(callTime/3600) : 0;
+            let mins = (callTime >= 60) ? parseInt((callTime%3600)/60) : 0;
+            let secs = parseInt(callTime - hours*3600 - mins*60);
+            DOMElements.callTimer.innerText = String(hours).padStart(2, 0) + ':' + String(mins).padStart(2, 0) + ':' + String(secs).padStart(2, 0);
+        }, 500);
+        toggleView([DOMElements.videoCallModalFloatBtn], [DOMElements.videoCallModal]);
         let call = user.currentCall = peer.call(peerID, stream, {metadata: { callType: type, peerSocketID: socket.id }});
         call.on('stream', (remoteStream) => {
             DOMElements.remoteVideo.srcObject = remoteStream;
             WaveformRemote.draw(remoteStream, DOMElements.remoteWaveform);
-            // callTime = 0; //in secs
-            // callTimerFunction = setInterval(() => {
-            //     ++callTime;
-            //     let hours = (callTime >= 3600) ? parseInt(callTime/3600) : 0;
-            //     let mins = (callTime >= 60) ? parseInt((callTime%3600)/60) : 0;
-            //     let secs = parseInt(callTime - hours*3600 - mins*60);
-            //     DOMElements.callTimer.innerText = String(hours).padStart(2, 0) + ':' + String(mins).padStart(2, 0) + ':' + String(secs).padStart(2, 0);
-            // }, 1000);
         });
         call.on('close', () => {
             endCall();
-            // if (callTimerFunction != null){
-            //     window.clearInterval(callTimerFunction);
-            //     callTime = 0;
-            //     callTimerFunction = null;
-            // }
+            if (callTimerFunction != null){
+                window.clearInterval(callTimerFunction);
+                callTimerFunction = null;
+            }
         });
     })
     .catch((err) => { console.error(err) });
